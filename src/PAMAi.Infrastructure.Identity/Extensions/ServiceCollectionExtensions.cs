@@ -29,10 +29,10 @@ public static class ServiceCollectionExtensions
     /// <exception cref="ConfigurationException"></exception>
     public static IServiceCollection AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Identity");
+        var connectionString = configuration.GetConnectionString("Default");
 
         if (string.IsNullOrWhiteSpace(connectionString))
-            throw new ConfigurationException("Connection string is null or whitespace.", "ConnectionStrings:Identity");
+            throw new ConfigurationException("Connection string is null or whitespace.", "ConnectionStrings:Default");
 
         services.AddIdentityContext(connectionString);
         services.AddApplicationAuthentication(configuration);
