@@ -6,12 +6,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PAMAi.Application.Exceptions;
 using PAMAi.Infrastructure.Identity.Models;
+using PAMAi.Infrastructure.Identity.Seed;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace PAMAi.Infrastructure.Identity.Extensions;
 
 public static class ServiceExtensions
 {
+    /// <summary>
+    /// Registers the DbContext, ASP.NET Core identity and services required for including
+    /// a full identity layer to the application.
+    /// </summary>
+    /// <param name="services">
+    /// Services container.
+    /// </param>
+    /// <param name="configuration">
+    /// Application configuration.
+    /// </param>
+    /// <returns>
+    /// The updated services container.
+    /// </returns>
+    /// <exception cref="ConfigurationException"></exception>
     public static IServiceCollection AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("Identity");
@@ -22,6 +37,7 @@ public static class ServiceExtensions
         services.AddIdentityContext(connectionString);
         services.AddApplicationAuthentication(configuration);
         services.AddApplicationIdentity(configuration);
+        services.AddServices();
 
         return services;
     }
@@ -96,6 +112,13 @@ public static class ServiceExtensions
 
             options.User.RequireUniqueEmail = true;
         }).AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
+
+        return services;
+    }
+
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<Seeder>();
 
         return services;
     }

@@ -21,32 +21,8 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // Add services to the container.
-    builder.Services.AddSerilog((services, loggerConfig) =>
-    {
-        loggerConfig.ReadFrom.Configuration(builder.Configuration);
-        loggerConfig.ReadFrom.Services(services);
-    });
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
-    builder.Services.AddIdentityInfrastructure(builder.Configuration);
-
-    var app = builder.Build();
-
-    // Configure the HTTP request pipeline.
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseSerilogRequestLogging(options => options.IncludeQueryInRequestPath = true);
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseDeveloperExceptionPage();
-        await app.MigrateDatabasesAsync();
-    }
-    app.UseHttpsRedirection();
-    app.UseAuthorization();
-    app.MapControllers();
-    app.Run();
+    ConfigureServices(builder);
+    await ConfigureAndRunAppAsync(builder);
 }
 catch (Exception exception)
 {
@@ -55,4 +31,44 @@ catch (Exception exception)
 finally
 {
     await Log.CloseAndFlushAsync();
+}
+
+void ConfigureServices(WebApplicationBuilder builder)
+{
+    // Add services to the container.
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+    builder.Services.AddIdentityInfrastructure(builder.Configuration);
+    builder.Services.AddSerilog((services, loggerConfig) =>
+    {
+        loggerConfig.ReadFrom.Configuration(builder.Configuration);
+        loggerConfig.ReadFrom.Services(services);
+    });
+}
+
+async Task ConfigureAndRunAppAsync(WebApplicationBuilder builder)
+{
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    var seedIdentityDbTask = app.SeedIdentityDatabaseAsync();
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseSerilogRequestLogging(options => options.IncludeQueryInRequestPath = true);
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+        await app.MigrateDatabasesAsync();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
+    app.MapControllers();
+
+    await seedIdentityDbTask;
+
+    await app.RunAsync();
 }

@@ -5,7 +5,7 @@ namespace PAMAi.Infrastructure.Identity.Models;
 /// <summary>
 /// Application user.
 /// </summary>
-public class User : IdentityUser
+public class User: IdentityUser
 {
     /// <summary>
     /// First name.

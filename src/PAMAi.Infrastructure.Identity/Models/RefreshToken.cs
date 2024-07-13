@@ -37,7 +37,7 @@ public class RefreshToken
     /// </code>
     /// </remarks>
     public string Token { get; set; } = string.Empty;
-    
+
     /// <summary>
     /// Expiration date in UTC.
     /// </summary>

@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PAMAi.Application\PAMAi.Application.csproj" />
-    <ProjectReference Include="..\PAMAi.Domain\PAMAi.Domain.csproj" />
   </ItemGroup>
 
 </Project>
