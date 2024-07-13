@@ -11,7 +11,7 @@ using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace PAMAi.Infrastructure.Identity.Extensions;
 
-public static class ServiceExtensions
+public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// Registers the DbContext, ASP.NET Core identity and services required for including
