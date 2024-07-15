@@ -44,7 +44,7 @@ public sealed class UserProfile: IEntity<Guid>
     /// <summary>
     /// Company.
     /// </summary>
-    public Guid? CompanyId { get; set; }
+    public string? CompanyName { get; set; }
 
     /// <summary>
     /// Identity user ID.
@@ -55,9 +55,4 @@ public sealed class UserProfile: IEntity<Guid>
     /// Residence state.
     /// </summary>
     public State? State { get; set; }
-
-    /// <summary>
-    /// Company.
-    /// </summary> 
-    public Company? Company { get; set; }
 }
