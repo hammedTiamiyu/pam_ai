@@ -11,15 +11,11 @@ namespace PAMAi.Infrastructure.Identity.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "Identity");
-
             migrationBuilder.AlterDatabase()
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Role",
-                schema: "Identity",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -40,7 +36,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "User",
-                schema: "Identity",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -81,7 +76,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoleClaim",
-                schema: "Identity",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -99,7 +93,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
                     table.ForeignKey(
                         name: "FK_RoleClaim_Role_RoleId",
                         column: x => x.RoleId,
-                        principalSchema: "Identity",
                         principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -108,7 +101,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RefreshToken",
-                schema: "Identity",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -127,7 +119,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
                     table.ForeignKey(
                         name: "FK_RefreshToken_User_UserId",
                         column: x => x.UserId,
-                        principalSchema: "Identity",
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -136,7 +127,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserClaim",
-                schema: "Identity",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -154,7 +144,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
                     table.ForeignKey(
                         name: "FK_UserClaim_User_UserId",
                         column: x => x.UserId,
-                        principalSchema: "Identity",
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -163,7 +152,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserLogin",
-                schema: "Identity",
                 columns: table => new
                 {
                     LoginProvider = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -181,7 +169,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
                     table.ForeignKey(
                         name: "FK_UserLogin_User_UserId",
                         column: x => x.UserId,
-                        principalSchema: "Identity",
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -190,7 +177,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserRole",
-                schema: "Identity",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -204,14 +190,12 @@ namespace PAMAi.Infrastructure.Identity.Migrations
                     table.ForeignKey(
                         name: "FK_UserRole_Role_RoleId",
                         column: x => x.RoleId,
-                        principalSchema: "Identity",
                         principalTable: "Role",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserRole_User_UserId",
                         column: x => x.UserId,
-                        principalSchema: "Identity",
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -220,7 +204,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserToken",
-                schema: "Identity",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "varchar(255)", nullable: false)
@@ -238,7 +221,6 @@ namespace PAMAi.Infrastructure.Identity.Migrations
                     table.ForeignKey(
                         name: "FK_UserToken_User_UserId",
                         column: x => x.UserId,
-                        principalSchema: "Identity",
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -247,52 +229,44 @@ namespace PAMAi.Infrastructure.Identity.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshToken_Token",
-                schema: "Identity",
                 table: "RefreshToken",
                 column: "Token",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
-                schema: "Identity",
                 table: "Role",
                 column: "NormalizedName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaim_RoleId",
-                schema: "Identity",
                 table: "RoleClaim",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
-                schema: "Identity",
                 table: "User",
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
-                schema: "Identity",
                 table: "User",
                 column: "NormalizedUserName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClaim_UserId",
-                schema: "Identity",
                 table: "UserClaim",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserLogin_UserId",
-                schema: "Identity",
                 table: "UserLogin",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRole_RoleId",
-                schema: "Identity",
                 table: "UserRole",
                 column: "RoleId");
         }
@@ -301,36 +275,28 @@ namespace PAMAi.Infrastructure.Identity.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "RefreshToken",
-                schema: "Identity");
+                name: "RefreshToken");
 
             migrationBuilder.DropTable(
-                name: "RoleClaim",
-                schema: "Identity");
+                name: "RoleClaim");
 
             migrationBuilder.DropTable(
-                name: "UserClaim",
-                schema: "Identity");
+                name: "UserClaim");
 
             migrationBuilder.DropTable(
-                name: "UserLogin",
-                schema: "Identity");
+                name: "UserLogin");
 
             migrationBuilder.DropTable(
-                name: "UserRole",
-                schema: "Identity");
+                name: "UserRole");
 
             migrationBuilder.DropTable(
-                name: "UserToken",
-                schema: "Identity");
+                name: "UserToken");
 
             migrationBuilder.DropTable(
-                name: "Role",
-                schema: "Identity");
+                name: "Role");
 
             migrationBuilder.DropTable(
-                name: "User",
-                schema: "Identity");
+                name: "User");
         }
     }
 }

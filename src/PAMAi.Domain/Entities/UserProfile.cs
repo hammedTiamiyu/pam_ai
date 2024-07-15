@@ -1,0 +1,63 @@
+﻿using PAMAi.Domain.Entities.Base;
+using PAMAi.Domain.Enums;
+
+namespace PAMAi.Domain.Entities;
+
+/// <summary>
+/// Profile of user in the application.
+/// </summary>
+public sealed class UserProfile: IEntity<Guid>
+{
+    /// <inheritdoc/>
+    public Guid Id { get; set; }
+
+    /// <summary>
+    /// Bio.
+    /// </summary>
+    public string Bio { get; set; } = string.Empty;
+
+    /// <summary>
+    /// User's gender.
+    /// </summary>
+    public Gender? Gender { get; set; }
+
+    /// <summary>
+    /// House number.
+    /// </summary>
+    public string? HouseNumber { get; set; }
+
+    /// <summary>
+    /// Street.
+    /// </summary>
+    public string? Street { get; set; }
+
+    /// <summary>
+    /// City.
+    /// </summary>
+    public string City { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Residence state primary key.
+    /// </summary>
+    public long StateId { get; set; }
+
+    /// <summary>
+    /// Company.
+    /// </summary>
+    public Guid? CompanyId { get; set; }
+
+    /// <summary>
+    /// Identity user ID.
+    /// </summary>
+    public Guid UserId { get; set; }
+
+    /// <summary>
+    /// Residence state.
+    /// </summary>
+    public State? State { get; set; }
+
+    /// <summary>
+    /// Company.
+    /// </summary> 
+    public Company? Company { get; set; }
+}

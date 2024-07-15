@@ -15,8 +15,6 @@ public class IdentityContext: IdentityDbContext<User>
     {
         base.OnModelCreating(builder);
 
-        builder.HasDefaultSchema("Identity");
-
         builder.Entity<IdentityRole>(entity =>
         {
             entity.ToTable(name: "Role", t => t.HasComment("Application roles."));

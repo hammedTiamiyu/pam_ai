@@ -1,5 +1,6 @@
 using PAMAi.API.Extensions;
 using PAMAi.Infrastructure.Identity.Extensions;
+using PAMAi.Infrastructure.Storage.Extensions;
 using Serilog;
 using Serilog.Formatting.Compact;
 
@@ -40,6 +41,7 @@ void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddIdentityInfrastructure(builder.Configuration);
+    builder.Services.AddStorageInfrastructure(builder.Configuration);
     builder.Services.AddSerilog((services, loggerConfig) =>
     {
         loggerConfig.ReadFrom.Configuration(builder.Configuration);
@@ -52,18 +54,17 @@ async Task ConfigureAndRunAppAsync(WebApplicationBuilder builder)
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
-    var seedIdentityDbTask = app.SeedIdentityDatabaseAsync();
-
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseSerilogRequestLogging(options => options.IncludeQueryInRequestPath = true);
-
     if (app.Environment.IsDevelopment())
     {
         app.UseDeveloperExceptionPage();
         await app.MigrateDatabasesAsync();
     }
 
+    var seedIdentityDbTask = app.SeedIdentityDatabaseAsync();
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseSerilogRequestLogging(options => options.IncludeQueryInRequestPath = true);
     app.UseHttpsRedirection();
     app.UseAuthorization();
     app.MapControllers();
