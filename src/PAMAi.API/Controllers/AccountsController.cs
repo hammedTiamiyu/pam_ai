@@ -1,6 +1,7 @@
 ﻿using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Dto.Authentication;
 using PAMAi.Application.Services.Interfaces;
+using PAMAi.Domain.Enums;
 
 namespace PAMAi.API.Controllers;
 
@@ -31,15 +32,15 @@ public sealed class AccountsController: BaseController
     }
 
     /// <summary>
-    /// Account login
+    /// Account login for super admins
     /// </summary>
     /// <param name="credential">Account credentials</param>
-    [HttpPost("login")]
+    [HttpPost("admin/login")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginAsync(LoginRequest credential, CancellationToken cancellationToken)
     {
-        var result = await _authenticationService.LoginAsync(credential, cancellationToken);
+        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.SuperAdmin, cancellationToken);
 
         return result.Match(
             onSuccess: Ok,
@@ -64,6 +65,22 @@ public sealed class AccountsController: BaseController
     }
 
     /// <summary>
+    /// Account login for installers
+    /// </summary>
+    /// <param name="credential">Account credentials</param>
+    [HttpPost("installers/login")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> InstallerLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
+    {
+        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.Installer, cancellationToken);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: error => _genericFailedLoginResponse);
+    }
+
+    /// <summary>
     /// Create user account
     /// </summary>
     /// <param name="user">
@@ -78,5 +95,21 @@ public sealed class AccountsController: BaseController
         return result.Match(
             onSuccess: () => CreatedAtRoute(UsersController.GET_LOGGED_IN_USERPROFILE_ROUTE, null),
             onFailure: ErrorResult);
+    }
+
+    /// <summary>
+    /// Account login for users
+    /// </summary>
+    /// <param name="credential">Account credentials</param>
+    [HttpPost("users/login")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UserLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
+    {
+        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.User, cancellationToken);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: error => _genericFailedLoginResponse);
     }
 }

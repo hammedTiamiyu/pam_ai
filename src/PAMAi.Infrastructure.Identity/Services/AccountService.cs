@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Mapster;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PAMAi.Application;
 using PAMAi.Application.Dto.Account;
@@ -40,9 +41,28 @@ internal class AccountService: IAccountService
         return await AddAccountToRoleAsync(user, role);
     }
 
-    public Task<Result> CreateInstallerAsync(CreateInstallerRequest installer, CancellationToken cancellationToken = default)
+    public async Task<Result> CreateInstallerAsync(CreateInstallerRequest installer, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        User? user = await _userManager.FindByEmailAsync(installer.Email);
+        if (user is not null)
+        {
+            _logger.LogError("An account exists for {Email}", installer.Email);
+
+            return Result.Failure(AccountError.Exists);
+        }
+
+        user = new User
+        {
+            FirstName = installer.FirstName,
+            LastName = installer.LastName,
+            Email = installer.Email,
+            UserName = installer.Username,
+            PhoneNumber = installer.PhoneNumber,
+        };
+        UserProfile profile = installer.Adapt<UserProfile>();
+        Result createUserResult = await AddAccountAsync(user, profile, installer.Password, ApplicationRole.Installer);
+
+        return createUserResult;
     }
 
     public async Task<Result> CreateSuperAdminAsync(CreateSuperAdminRequest superAdmin, CancellationToken cancellationToken = default)

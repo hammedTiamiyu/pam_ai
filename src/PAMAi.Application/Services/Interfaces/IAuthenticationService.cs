@@ -1,4 +1,5 @@
 ﻿using PAMAi.Application.Dto.Authentication;
+using PAMAi.Domain.Enums;
 
 namespace PAMAi.Application.Services.Interfaces;
 
@@ -13,9 +14,10 @@ public interface IAuthenticationService
     /// <param name="credentials">
     /// Account credentials.
     /// </param>
+    /// <param name="loginAsRole"></param>
+    /// <returns></returns>
     /// <param name="cancellationToken">
     /// Token for cancelling operations.
     /// </param>
-    /// <returns></returns>
-    Task<Result> LoginAsync(LoginRequest credentials, CancellationToken cancellationToken = default);
+    Task<Result> LoginAsync(LoginRequest credentials, ApplicationRole loginAsRole, CancellationToken cancellationToken = default);
 }
