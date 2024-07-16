@@ -1,4 +1,6 @@
-﻿namespace PAMAi.Application.Dto.Authentication;
+﻿using FluentValidation;
+
+namespace PAMAi.Application.Dto.Authentication;
 
 public record LoginRequest
 {
@@ -13,4 +15,13 @@ public record LoginRequest
     /// </summary>
     /// <example>AH@rDpa55W0rD</example>
     public string Password { get; set; } = string.Empty;
+}
+
+internal class LoginRequestValidator: AbstractValidator<LoginRequest>
+{
+    public LoginRequestValidator()
+    {
+        RuleFor(l => l.Username).NotEmpty();
+        RuleFor(l => l.Password).NotEmpty();
+    }
 }
