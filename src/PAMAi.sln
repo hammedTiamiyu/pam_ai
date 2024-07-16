@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35017.193
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.API", "PAMAi.API\PAMAi.API.csproj", "{F382A3A4-C73A-4197-ADA9-875E0CD1B4C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Domain", "PAMAi.Domain\PAMAi.Domain.csproj", "{77CAE6C4-8CDC-4C8E-9214-E58714A2876C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Application", "PAMAi.Application\PAMAi.Application.csproj", "{B0ED148A-FC5A-48D4-8826-561CE05FEED9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Infrastructure.Identity", "PAMAi.Infrastructure.Identity\PAMAi.Infrastructure.Identity.csproj", "{0E35045A-3E02-4342-A54D-0D134DE3E549}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Infrastructure.Storage", "PAMAi.Infrastructure.Storage\PAMAi.Infrastructure.Storage.csproj", "{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{76AF50B6-1F18-4D22-A5BE-87B71628CDDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{893BFD1A-567F-4FBC-A146-45A64EBAAEBB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{F3E74861-7E96-4E9C-ABFA-09020DCE0097}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{32026368-4746-469D-8499-C99BBD85B2A5}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		..\.gitignore = ..\.gitignore
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ED9E3A70-63D8-40FD-BDC6-E8229C6A30F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Tests.Unit", "..\tests\PAMAi.Tests.Unit\PAMAi.Tests.Unit.csproj", "{2D94C156-6284-45CC-B8D2-65881A9FA8B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Tests.Integration", "..\tests\PAMAi.Tests.Integration\PAMAi.Tests.Integration.csproj", "{012FC296-578C-4A1C-90EE-A3341661C822}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F382A3A4-C73A-4197-ADA9-875E0CD1B4C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F382A3A4-C73A-4197-ADA9-875E0CD1B4C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F382A3A4-C73A-4197-ADA9-875E0CD1B4C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F382A3A4-C73A-4197-ADA9-875E0CD1B4C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77CAE6C4-8CDC-4C8E-9214-E58714A2876C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77CAE6C4-8CDC-4C8E-9214-E58714A2876C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77CAE6C4-8CDC-4C8E-9214-E58714A2876C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77CAE6C4-8CDC-4C8E-9214-E58714A2876C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0ED148A-FC5A-48D4-8826-561CE05FEED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0ED148A-FC5A-48D4-8826-561CE05FEED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0ED148A-FC5A-48D4-8826-561CE05FEED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0ED148A-FC5A-48D4-8826-561CE05FEED9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E35045A-3E02-4342-A54D-0D134DE3E549}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E35045A-3E02-4342-A54D-0D134DE3E549}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E35045A-3E02-4342-A54D-0D134DE3E549}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E35045A-3E02-4342-A54D-0D134DE3E549}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D94C156-6284-45CC-B8D2-65881A9FA8B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D94C156-6284-45CC-B8D2-65881A9FA8B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D94C156-6284-45CC-B8D2-65881A9FA8B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D94C156-6284-45CC-B8D2-65881A9FA8B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{012FC296-578C-4A1C-90EE-A3341661C822}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{012FC296-578C-4A1C-90EE-A3341661C822}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{012FC296-578C-4A1C-90EE-A3341661C822}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{012FC296-578C-4A1C-90EE-A3341661C822}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F382A3A4-C73A-4197-ADA9-875E0CD1B4C9} = {F3E74861-7E96-4E9C-ABFA-09020DCE0097}
+		{77CAE6C4-8CDC-4C8E-9214-E58714A2876C} = {76AF50B6-1F18-4D22-A5BE-87B71628CDDA}
+		{B0ED148A-FC5A-48D4-8826-561CE05FEED9} = {76AF50B6-1F18-4D22-A5BE-87B71628CDDA}
+		{0E35045A-3E02-4342-A54D-0D134DE3E549} = {893BFD1A-567F-4FBC-A146-45A64EBAAEBB}
+		{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44} = {893BFD1A-567F-4FBC-A146-45A64EBAAEBB}
+		{2D94C156-6284-45CC-B8D2-65881A9FA8B1} = {ED9E3A70-63D8-40FD-BDC6-E8229C6A30F6}
+		{012FC296-578C-4A1C-90EE-A3341661C822} = {ED9E3A70-63D8-40FD-BDC6-E8229C6A30F6}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BF06AC5D-6503-439B-A127-A21735AF3A50}
+	EndGlobalSection
+EndGlobal
