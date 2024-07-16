@@ -22,7 +22,7 @@ internal abstract class Repository<TEntity, TKey>: Repository<TEntity>, IReposit
         Logger.LogTrace("Finding {entity} record by key {key}", typeof(TEntity).Name, id);
 
         var watch = Stopwatch.StartNew();
-        TEntity? entity = await DbContext.Set<TEntity>().FindAsync(new object?[] { id }, cancellationToken: cancellationToken);
+        TEntity? entity = await DbContext.Set<TEntity>().FindAsync([id], cancellationToken: cancellationToken);
         watch.Stop();
         Logger.LogDebug(
             "Searched {entity} records for entity with key {key} in {time} ms. Found: {found}",

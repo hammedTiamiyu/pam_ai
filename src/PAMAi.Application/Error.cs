@@ -1,4 +1,6 @@
-﻿namespace PAMAi.Application;
+﻿using PAMAi.Application.Extensions;
+
+namespace PAMAi.Application;
 
 /// <summary>
 /// Error information from an operation.

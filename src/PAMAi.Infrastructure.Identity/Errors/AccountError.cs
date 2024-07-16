@@ -10,5 +10,5 @@ internal class AccountError
     internal static readonly Error UnableToAddToRole = new("Account.UnableToAddToRole", "Could not add user to role");
     internal static readonly Error UnableToDelete = new("Account.UnableToDelete", "Unable to delete user");
     internal static readonly Error IsNotInRole = new("Account.IsNotInRole", "User is not in {0} role");
-    internal static readonly Error InvalidCredentials = new("Account,InvalidCredentials", "Invalid credentials");
+    internal static readonly Error InvalidCredentials = new("Account.InvalidCredentials", "Invalid credentials");
 }

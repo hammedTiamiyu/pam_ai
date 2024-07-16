@@ -17,7 +17,7 @@ internal sealed class ConfigureSwaggerOptions: IConfigureNamedOptions<SwaggerGen
         _provider = provider;
     }
 
-    public void Configure(string name, SwaggerGenOptions options)
+    public void Configure(string? name, SwaggerGenOptions options)
     {
         Configure(options);
     }

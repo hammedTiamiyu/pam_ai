@@ -6,6 +6,7 @@ using PAMAi.Infrastructure.Storage.Contexts;
 using PAMAi.Infrastructure.Storage.Seed;
 using Polly;
 using Polly.Extensions.Http;
+using Polly.Retry;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace PAMAi.Infrastructure.Storage.Extensions;
@@ -66,7 +67,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+    private static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy()
     {
         return HttpPolicyExtensions
             .HandleTransientHttpError()

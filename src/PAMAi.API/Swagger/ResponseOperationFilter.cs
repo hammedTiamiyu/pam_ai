@@ -11,7 +11,7 @@ namespace PAMAi.API.Swagger;
 internal sealed class ResponseOperationFilter: IOperationFilter
 {
     #region Problem details
-    private static ProblemDetails _problemDetails = new()
+    private static readonly ProblemDetails _problemDetails = new()
     {
         Type = "https://example.com/probs/out-of-credit",
         Title = "You do not have enough credit",
@@ -19,7 +19,7 @@ internal sealed class ResponseOperationFilter: IOperationFilter
         Instance = "/account/12345/msgs/abc",
         Status = StatusCodes.Status500InternalServerError,
     };
-    private static ProblemDetails _notFoundDetails = new()
+    private static readonly ProblemDetails _notFoundDetails = new()
     {
         Type = "https://example.com/probs/not-found",
         Title = "Not found.",
@@ -27,11 +27,11 @@ internal sealed class ResponseOperationFilter: IOperationFilter
         Instance = "/products/368e834c-bf9f-4381-870c-b5d64d3a99bd",
         Status = StatusCodes.Status404NotFound,
     };
-    private static Dictionary<string, string[]> _errors = new()
+    private static readonly Dictionary<string, string[]> _errors = new()
     {
         { "CustomerName", new string[] { "Customer name cannot be null or empty." } }
     };
-    private static ValidationProblemDetails _validationProblemDetails = new(_errors)
+    private static readonly ValidationProblemDetails _validationProblemDetails = new(_errors)
     {
         Type = "https://example.com/probs/invalid-input",
         Title = "Invalid input.",
@@ -42,17 +42,17 @@ internal sealed class ResponseOperationFilter: IOperationFilter
     #endregion
 
     #region Open API schemas
-    private static OpenApiSchema _problemDetailsSchema = new()
+    private static readonly OpenApiSchema _problemDetailsSchema = new()
     {
         Type = typeof(ProblemDetails).ToString(),
         Example = new OpenApiString(JsonSerializer.Serialize(_problemDetails)),
     };
-    private static OpenApiSchema _notFoundProblemDetailsSchema = new()
+    private static readonly OpenApiSchema _notFoundProblemDetailsSchema = new()
     {
         Type = typeof(ProblemDetails).ToString(),
         Example = new OpenApiString(JsonSerializer.Serialize(_notFoundDetails)),
     };
-    private static OpenApiSchema _validationProblemDetailsSchema = new()
+    private static readonly OpenApiSchema _validationProblemDetailsSchema = new()
     {
         Type = typeof(ValidationProblemDetails).ToString(),
         Example = new OpenApiString(JsonSerializer.Serialize(_validationProblemDetails)),

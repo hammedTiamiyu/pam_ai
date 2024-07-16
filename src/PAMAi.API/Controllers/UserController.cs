@@ -19,7 +19,7 @@ public sealed class UsersController: BaseController
     /// Get profile of the current signed-in user.
     /// </summary>
     [HttpGet("me", Name = GET_LOGGED_IN_USERPROFILE_ROUTE)]
-    public async Task<IActionResult> GetLoggedInUserProfileAsync(CancellationToken cancellationToken = default)
+    public Task<IActionResult> GetLoggedInUserProfileAsync(CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
