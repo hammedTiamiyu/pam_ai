@@ -16,7 +16,7 @@ public record CreateInstallerRequest
     /// <example>john.doe@example.com</example>
     public string Email { get; set; } = string.Empty;
 
-    /// <example>John</example>
+    /// <example>+23408010000000</example>
     public string PhoneNumber { get; set; } = string.Empty;
 
     /// <example>10</example>

@@ -19,5 +19,17 @@ public interface IAuthenticationService
     /// <param name="cancellationToken">
     /// Token for cancelling operations.
     /// </param>
-    Task<Result> LoginAsync(LoginRequest credentials, ApplicationRole loginAsRole, CancellationToken cancellationToken = default);
+    Task<Result<LoginResponse>> LoginAsync(LoginRequest credentials, ApplicationRole loginAsRole, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Log out user.
+    /// </summary>
+    /// <param name="accessToken">
+    /// Last access token given to user.
+    /// </param>
+    /// <param name="refreshToken">
+    /// Last refresh token given to user.
+    /// </param>
+    /// <returns></returns>
+    Task<Result> LogoutAsync(string accessToken, string refreshToken);
 }

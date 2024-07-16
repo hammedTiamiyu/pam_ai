@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using PAMAi.API.ExceptionHandlers;
 using PAMAi.API.Swagger;
 using PAMAi.Application.Extensions;
@@ -48,7 +50,7 @@ void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddProblemDetails();
     builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
     builder.Services.AddSwaggerGen();
-    builder.Services.AddApplication();
+    builder.Services.AddApplication(builder.Configuration);
     builder.Services.AddIdentityInfrastructure(builder.Configuration);
     builder.Services.AddStorageInfrastructure(builder.Configuration);
     builder.Services.AddSerilog((services, loggerConfig) =>
@@ -76,6 +78,7 @@ async Task ConfigureAndRunAppAsync(WebApplicationBuilder builder)
     app.UseSwaggerInternal();
     app.UseSerilogRequestLogging(options => options.IncludeQueryInRequestPath = true);
     app.UseHttpsRedirection();
+    app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
 

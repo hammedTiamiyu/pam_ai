@@ -40,6 +40,8 @@ internal static class Constants
 
     internal static class Jwt
     {
+        private const string _defaultAlgorithm = SecurityAlgorithms.HmacSha256;
+
         /// <summary>
         /// JWT key.
         /// </summary>
@@ -57,8 +59,37 @@ internal static class Constants
         public static readonly SymmetricSecurityKey SecurityKey = new(Key);
 
         /// <summary>
+        /// Signing credentials for JWTs.
+        /// </summary>
+        public static readonly SigningCredentials SigningCredentials = new(SecurityKey, _defaultAlgorithm);
+
+        /// <summary>
         /// Valid algorithms for signing JWTs in the application.
         /// </summary>
-        public static readonly List<string> Algorithms = [SecurityAlgorithms.HmacSha256];
+        public static readonly List<string> Algorithms = [_defaultAlgorithm];
+
+        internal static TokenValidationParameters GetApplicationTokenValidationParameters(string issuer, string audience)
+        {
+            return new TokenValidationParameters
+            {
+                ClockSkew = TimeSpan.Zero,
+                ValidIssuer = issuer,
+                ValidAudience = audience,
+                ValidAlgorithms = Algorithms,
+
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                RequireExpirationTime = true,
+
+                IssuerSigningKey = SecurityKey,
+            };
+        }
+
+        internal static class CustomClaims
+        {
+            public static readonly string SignedInAs = "signed_in_role";
+        }
     }
 }

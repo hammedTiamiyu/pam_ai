@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using PAMAi.Application.Exceptions;
 using PAMAi.Application.Services.Interfaces;
 using PAMAi.Infrastructure.Identity.Models;
@@ -40,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddApplicationAuthentication(configuration);
         services.AddApplicationIdentity(configuration);
         services.AddServices();
+        services.AddDistributedMemoryCache();
 
         return services;
     }
@@ -69,31 +69,32 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddApplicationAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthentication(options =>
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
         {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        }).AddJwtBearer(options =>
-        {
-            options.SaveToken = false;
+            options.SaveToken = true;
             options.RequireHttpsMetadata = false;
-            options.TokenValidationParameters = new TokenValidationParameters
+
+            string issuer = configuration["Authentication:Schemes:Bearer:Issuer"] ?? "";
+            string audience = configuration["Authentication:Schemes:Bearer:Audience"] ?? "";
+            options.TokenValidationParameters = Constants.Jwt.GetApplicationTokenValidationParameters(issuer, audience);
+
+            options.Events = new JwtBearerEvents
             {
-                ClockSkew = TimeSpan.Zero,
-                ValidIssuer = configuration["Authentication:Schemes:Bearer:Issuer"],
-                ValidAudience = configuration["Authentication:Schemes:Bearer:Audience"],
-                ValidAlgorithms = Constants.Jwt.Algorithms,
-
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                LogValidationExceptions = true,
-                RequireExpirationTime = true,
-
-                IssuerSigningKey = Constants.Jwt.SecurityKey,
+                OnAuthenticationFailed = del =>
+                {
+                    return Task.CompletedTask;
+                },
+                OnChallenge = del =>
+                {
+                    return Task.CompletedTask;
+                },
+                OnForbidden = del =>
+                {
+                    return Task.CompletedTask;
+                },
             };
         });
+        services.AddAuthorization();
 
         return services;
     }
@@ -123,6 +124,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Seeder>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<ITokenService, TokenService>();
 
         return services;
     }

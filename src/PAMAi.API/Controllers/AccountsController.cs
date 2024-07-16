@@ -36,7 +36,7 @@ public sealed class AccountsController: BaseController
     /// </summary>
     /// <param name="credential">Account credentials</param>
     [HttpPost("admin/login")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginAsync(LoginRequest credential, CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: error => _genericFailedLoginResponse);
+            onFailure: (data, error) => _genericFailedLoginResponse);
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public sealed class AccountsController: BaseController
     /// </summary>
     /// <param name="credential">Account credentials</param>
     [HttpPost("installers/login")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> InstallerLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
     {
@@ -77,7 +77,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: error => _genericFailedLoginResponse);
+            onFailure: (data, error) => _genericFailedLoginResponse);
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public sealed class AccountsController: BaseController
     /// </summary>
     /// <param name="credential">Account credentials</param>
     [HttpPost("users/login")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UserLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
     {
@@ -110,6 +110,20 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: error => _genericFailedLoginResponse);
+            onFailure: (data, error) => _genericFailedLoginResponse);
+    }
+
+    /// <summary>
+    /// Logout
+    /// </summary>
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
+    {
+        var result = await _authenticationService.LogoutAsync("", "");
+
+        return result.Match(
+            onSuccess: NoContent,
+            onFailure: ErrorResult);
     }
 }

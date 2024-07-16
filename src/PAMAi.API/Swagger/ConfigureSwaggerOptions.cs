@@ -62,13 +62,8 @@ internal sealed class ConfigureSwaggerOptions: IConfigureNamedOptions<SwaggerGen
     {
         var info = new OpenApiInfo
         {
-            Title = "Process Flow Manager Web API",
+            Title = "PAMAi API",
             Version = description.ApiVersion.ToString(),
-            Contact = new OpenApiContact
-            {
-                Name = "LawPavilion Business Solutions",
-                Url = new Uri("https://lawpavilion.com"),
-            },
         };
 
         if (description.IsDeprecated)
