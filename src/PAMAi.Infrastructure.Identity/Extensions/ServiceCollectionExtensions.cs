@@ -5,8 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PAMAi.Application.Exceptions;
+using PAMAi.Application.Services.Interfaces;
 using PAMAi.Infrastructure.Identity.Models;
 using PAMAi.Infrastructure.Identity.Seed;
+using PAMAi.Infrastructure.Identity.Services;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace PAMAi.Infrastructure.Identity.Extensions;
@@ -119,6 +121,8 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<Seeder>();
+        services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         return services;
     }

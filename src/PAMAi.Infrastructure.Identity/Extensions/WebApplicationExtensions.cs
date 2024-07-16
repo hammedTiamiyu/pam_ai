@@ -19,7 +19,8 @@ public static class WebApplicationExtensions
         await using AsyncServiceScope scope = app.Services.CreateAsyncScope();
         Seeder seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
 
-        await seeder.CreateDefaultRolesAsync();
+        await seeder.CreateApplicationRolesAsync();
+        await seeder.CreateDefaultSuperAdminAsync();
 
         return app;
     }

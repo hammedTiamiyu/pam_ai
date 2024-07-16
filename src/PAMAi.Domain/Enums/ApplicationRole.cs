@@ -8,7 +8,7 @@ public enum ApplicationRole
     /// <summary>
     /// PAMAi staff and administrators.
     /// </summary>
-    Administrator = 1,
+    SuperAdmin = 1,
 
     /// <summary>
     /// System installers and maintenance engineers.

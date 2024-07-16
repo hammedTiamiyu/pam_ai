@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using PAMAi.Infrastructure.Identity;
 using PAMAi.Infrastructure.Storage.Contexts;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace PAMAi.API.Extensions;
 
@@ -27,8 +29,8 @@ public static class WebApplicationExtensions
         await identityContext.Database.MigrateAsync();
         watch.Stop();
         identityMigrationTime = watch.ElapsedMilliseconds;
-        logger.LogDebug("{Context} migration finished in {Time} ms", 
-            identityContext.GetType().Name, 
+        logger.LogDebug("{Context} migration finished in {Time} ms",
+            identityContext.GetType().Name,
             identityMigrationTime);
 
         watch.Restart();
@@ -40,6 +42,36 @@ public static class WebApplicationExtensions
             applicationMigrationTime);
 
         logger.LogDebug("All database migrations finished in {Time} ms", identityMigrationTime + applicationMigrationTime);
+
+        return app;
+    }
+
+    /// <summary>
+    /// Use Swagger documentation.
+    /// </summary>
+    /// <param name="app">Application builder.</param>
+    /// <returns></returns>
+    public static IApplicationBuilder UseSwaggerInternal(this WebApplication app)
+    {
+        var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+            {
+                options.SwaggerEndpoint($"../swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+#if DEBUG
+                options.DisplayRequestDuration();
+#endif
+                options.DocExpansion(DocExpansion.None);
+                options.EnableDeepLinking();
+                options.EnableFilter();
+                options.EnablePersistAuthorization();
+                options.EnableValidator();
+                options.ShowCommonExtensions();
+                options.ShowExtensions();
+            }
+        });
 
         return app;
     }

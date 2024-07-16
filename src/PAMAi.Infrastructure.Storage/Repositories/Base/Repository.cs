@@ -33,6 +33,9 @@ internal abstract class Repository<TEntity, TKey>: Repository<TEntity>, IReposit
 
         return entity;
     }
+
+    public override Task<TEntity?> FirstOrDefaultAsync(CancellationToken cancellationToken = default) =>
+        DbContext.Set<TEntity>().OrderBy(e => e.Id).FirstOrDefaultAsync(cancellationToken);
 }
 
 internal abstract class Repository<TEntity>: IRepository<TEntity>
@@ -99,6 +102,9 @@ internal abstract class Repository<TEntity>: IRepository<TEntity>
 
         return entities;
     }
+
+    public virtual Task<TEntity?> FirstOrDefaultAsync(CancellationToken cancellationToken = default)
+        => DbContext.Set<TEntity>().FirstOrDefaultAsync(cancellationToken);
 
     public virtual async Task<IEnumerable<TEntity>> GetAsync(CancellationToken cancellationToken = default)
     {

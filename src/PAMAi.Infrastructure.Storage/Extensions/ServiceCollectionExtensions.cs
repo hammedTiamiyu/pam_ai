@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using PAMAi.Application.Exceptions;
 using PAMAi.Application.Storage;
 using PAMAi.Infrastructure.Storage.Contexts;
+using PAMAi.Infrastructure.Storage.Seed;
+using Polly;
+using Polly.Extensions.Http;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace PAMAi.Infrastructure.Storage.Extensions;
@@ -30,7 +33,12 @@ public static class ServiceCollectionExtensions
             throw new ConfigurationException("Connection string is null or whitespace.", "ConnectionStrings:Default");
 
         services.AddDbContext(connectionString);
+        services.AddScoped<Seeder>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddHttpClient().ConfigureHttpClientDefaults(builder =>
+        {
+            builder.AddPolicyHandler(GetRetryPolicy());
+        });
 
         return services;
     }
@@ -58,4 +66,11 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .OrResult(message => message.StatusCode == System.Net.HttpStatusCode.NotFound)
+            .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+    }
 }

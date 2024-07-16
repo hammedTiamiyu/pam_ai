@@ -1,8 +1,11 @@
-using PAMAi.API.Extensions;
+using PAMAi.API.ExceptionHandlers;
+using PAMAi.API.Swagger;
+using PAMAi.Application.Extensions;
 using PAMAi.Infrastructure.Identity.Extensions;
 using PAMAi.Infrastructure.Storage.Extensions;
 using Serilog;
 using Serilog.Formatting.Compact;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 
 // Bootstrap logger.
 string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -39,7 +42,13 @@ void ConfigureServices(WebApplicationBuilder builder)
     // Add services to the container.
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddFluentValidationAutoValidation(config => config.DisableBuiltInModelValidation = true);
+    builder.Services.AddApiVersioningInternal();
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+    builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
     builder.Services.AddSwaggerGen();
+    builder.Services.AddApplication();
     builder.Services.AddIdentityInfrastructure(builder.Configuration);
     builder.Services.AddStorageInfrastructure(builder.Configuration);
     builder.Services.AddSerilog((services, loggerConfig) =>
@@ -60,10 +69,11 @@ async Task ConfigureAndRunAppAsync(WebApplicationBuilder builder)
         await app.MigrateDatabasesAsync();
     }
 
+    await app.SeedStorageDatabaseAsync();
     var seedIdentityDbTask = app.SeedIdentityDatabaseAsync();
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseExceptionHandler();
+    app.UseSwaggerInternal();
     app.UseSerilogRequestLogging(options => options.IncludeQueryInRequestPath = true);
     app.UseHttpsRedirection();
     app.UseAuthorization();

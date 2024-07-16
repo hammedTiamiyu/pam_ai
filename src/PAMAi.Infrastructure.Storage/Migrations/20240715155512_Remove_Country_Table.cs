@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace PAMAi.Infrastructure.Storage.Migrations
 {
     /// <inheritdoc />
-    public partial class Remove_Country_Table : Migration
+    public partial class Remove_Country_Table: Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

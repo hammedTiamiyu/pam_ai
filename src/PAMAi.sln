@@ -5,13 +5,13 @@ VisualStudioVersion = 17.11.35017.193
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.API", "PAMAi.API\PAMAi.API.csproj", "{F382A3A4-C73A-4197-ADA9-875E0CD1B4C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAMAi.Domain", "PAMAi.Domain\PAMAi.Domain.csproj", "{77CAE6C4-8CDC-4C8E-9214-E58714A2876C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Domain", "PAMAi.Domain\PAMAi.Domain.csproj", "{77CAE6C4-8CDC-4C8E-9214-E58714A2876C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAMAi.Application", "PAMAi.Application\PAMAi.Application.csproj", "{B0ED148A-FC5A-48D4-8826-561CE05FEED9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Application", "PAMAi.Application\PAMAi.Application.csproj", "{B0ED148A-FC5A-48D4-8826-561CE05FEED9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAMAi.Infrastructure.Identity", "PAMAi.Infrastructure.Identity\PAMAi.Infrastructure.Identity.csproj", "{0E35045A-3E02-4342-A54D-0D134DE3E549}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Infrastructure.Identity", "PAMAi.Infrastructure.Identity\PAMAi.Infrastructure.Identity.csproj", "{0E35045A-3E02-4342-A54D-0D134DE3E549}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAMAi.Infrastructure.Storage", "PAMAi.Infrastructure.Storage\PAMAi.Infrastructure.Storage.csproj", "{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Infrastructure.Storage", "PAMAi.Infrastructure.Storage\PAMAi.Infrastructure.Storage.csproj", "{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{76AF50B6-1F18-4D22-A5BE-87B71628CDDA}"
 EndProject
@@ -21,15 +21,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{F3E74861-7E9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{32026368-4746-469D-8499-C99BBD85B2A5}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		..\.gitignore = ..\.gitignore
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{ED9E3A70-63D8-40FD-BDC6-E8229C6A30F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAMAi.Tests.Unit", "..\tests\PAMAi.Tests.Unit\PAMAi.Tests.Unit.csproj", "{2D94C156-6284-45CC-B8D2-65881A9FA8B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Tests.Unit", "..\tests\PAMAi.Tests.Unit\PAMAi.Tests.Unit.csproj", "{2D94C156-6284-45CC-B8D2-65881A9FA8B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAMAi.Tests.Integration", "..\tests\PAMAi.Tests.Integration\PAMAi.Tests.Integration.csproj", "{012FC296-578C-4A1C-90EE-A3341661C822}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Tests.Integration", "..\tests\PAMAi.Tests.Integration\PAMAi.Tests.Integration.csproj", "{012FC296-578C-4A1C-90EE-A3341661C822}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
