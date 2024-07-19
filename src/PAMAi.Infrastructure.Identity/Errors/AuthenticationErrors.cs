@@ -1,7 +1,9 @@
-﻿using PAMAi.Application;
+﻿using Microsoft.AspNetCore.Http;
+using PAMAi.Application;
 
 namespace PAMAi.Infrastructure.Identity.Errors;
 internal class AuthenticationErrors
 {
-    internal static readonly Error LogoutFailed = new("Auth.LogoutFailed", "Logout failed");
+    internal static readonly Error LoginFailed = new("Login failed", StatusCodes.Status401Unauthorized);
+    internal static readonly Error LogoutFailed = new("Logout failed");
 }

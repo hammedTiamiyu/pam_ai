@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using PAMAi.Application;
 using PAMAi.Application.Dto.Account;
-using PAMAi.Application.Extensions;
 using PAMAi.Application.Services.Interfaces;
 using PAMAi.Application.Storage;
 using PAMAi.Domain.Entities;
@@ -35,7 +34,7 @@ internal class AccountService: IAccountService
                 userId,
                 role);
 
-            return Result.Failure(AccountError.UnableToAddToRole);
+            return Result.Failure(AccountError.UnableToAddToRole with { Description = "Account does not exist." });
         }
 
         return await AddAccountToRoleAsync(user, role);
@@ -48,7 +47,10 @@ internal class AccountService: IAccountService
         {
             _logger.LogError("An account exists for {Email}", installer.Email);
 
-            return Result.Failure(AccountError.Exists);
+            return Result.Failure(AccountError.UnableToCreate with
+            {
+                Description = $"An account exists for {installer.Email}"
+            });
         }
 
         user = new User
@@ -60,7 +62,7 @@ internal class AccountService: IAccountService
             PhoneNumber = installer.PhoneNumber,
         };
         UserProfile profile = installer.Adapt<UserProfile>();
-        Result createUserResult = await AddAccountAsync(user, profile, installer.Password, ApplicationRole.Installer);
+        Result createUserResult = await CreateAccountAsync(user, profile, installer.Password, ApplicationRole.Installer);
 
         return createUserResult;
     }
@@ -72,7 +74,10 @@ internal class AccountService: IAccountService
         {
             _logger.LogError("An account exists for {Email}", superAdmin.Email);
 
-            return Result.Failure(AccountError.Exists);
+            return Result.Failure(AccountError.UnableToCreate with
+            {
+                Description = $"An account exists for {superAdmin.Email}"
+            });
         }
 
         user = new User
@@ -88,7 +93,7 @@ internal class AccountService: IAccountService
             StateId = superAdmin.StateId,
         };
 
-        Result createUserResult = await AddAccountAsync(user, profile, superAdmin.Password, ApplicationRole.SuperAdmin);
+        Result createUserResult = await CreateAccountAsync(user, profile, superAdmin.Password, ApplicationRole.SuperAdmin);
 
         return createUserResult;
     }
@@ -145,7 +150,7 @@ internal class AccountService: IAccountService
         return Result.Success();
     }
 
-    private async Task<Result> AddAccountAsync(User user, UserProfile profile, string password, ApplicationRole role)
+    private async Task<Result> CreateAccountAsync(User user, UserProfile profile, string password, ApplicationRole role)
     {
         _logger.LogInformation("Adding account {Email}", user.Email);
 
@@ -158,7 +163,6 @@ internal class AccountService: IAccountService
                 "Add account {Email} failed. Retrying operation. Tries available: {Tries}",
                 user.Email,
                 triesAvailable);
-
             result = await _userManager.CreateAsync(user, password);
             triesAvailable--;
         }
@@ -166,7 +170,6 @@ internal class AccountService: IAccountService
         if (!result.Succeeded)
         {
             IEnumerable<string> errors = result.Errors.Select(err => err.Description);
-
             _logger.LogError("Could not add account {Email} to {Role} role. Errors: {@Errors}",
                 user.Email,
                 ApplicationRole.SuperAdmin,
@@ -176,11 +179,10 @@ internal class AccountService: IAccountService
         }
 
         Result addToRoleResult = await AddAccountToRoleAsync(user, role);
-        if (!addToRoleResult.IsSuccess)
+        if (addToRoleResult.IsFailure)
         {
             await DeleteAccountAsync(user);
-
-            return Result.Failure(AccountError.UnableToCreate);
+            return Result.Failure(AccountError.UnableToCreate with { InnerError = addToRoleResult.Error });
         }
 
         try
@@ -192,11 +194,9 @@ internal class AccountService: IAccountService
         catch (Exception exception)
         {
             _logger.LogError(exception, "An error occurred. Message: {Message}", exception.Message);
-
             await DeleteAccountAsync(user);
-            Error error = AccountError.UnableToCreate.AddDetail(exception.Message);
 
-            return Result.Failure(error);
+            return Result.Failure(AccountError.UnableToCreate);
         }
 
         _logger.LogInformation("Account {Email} added", user.Email);

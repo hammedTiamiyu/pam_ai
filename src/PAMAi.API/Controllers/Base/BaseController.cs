@@ -22,7 +22,7 @@ public abstract class BaseController: ControllerBase
     {
         return Problem(
             type: "about:blank",
-            detail: error.Detail,
+            detail: error.Description,
             instance: _httpContextAccessor.HttpContext?.Request.Path,
             statusCode: error.StatusCode,
             title: error.Summary);

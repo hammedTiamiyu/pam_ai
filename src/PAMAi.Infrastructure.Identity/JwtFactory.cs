@@ -8,7 +8,7 @@ internal sealed class JwtFactory
 {
     private readonly JwtOptions _jwtOptions;
 
-    public JwtFactory(JwtOptions jwtOptions) 
+    public JwtFactory(JwtOptions jwtOptions)
         => _jwtOptions = jwtOptions;
 
     /// <summary>

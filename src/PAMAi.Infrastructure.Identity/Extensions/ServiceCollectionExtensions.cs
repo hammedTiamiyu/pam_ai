@@ -69,7 +69,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddApplicationAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+        services.AddAuthentication().AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
         {
             options.SaveToken = true;
             options.RequireHttpsMetadata = false;
@@ -77,22 +77,6 @@ public static class ServiceCollectionExtensions
             string issuer = configuration["Authentication:Schemes:Bearer:Issuer"] ?? "";
             string audience = configuration["Authentication:Schemes:Bearer:Audience"] ?? "";
             options.TokenValidationParameters = Constants.Jwt.GetApplicationTokenValidationParameters(issuer, audience);
-
-            options.Events = new JwtBearerEvents
-            {
-                OnAuthenticationFailed = del =>
-                {
-                    return Task.CompletedTask;
-                },
-                OnChallenge = del =>
-                {
-                    return Task.CompletedTask;
-                },
-                OnForbidden = del =>
-                {
-                    return Task.CompletedTask;
-                },
-            };
         });
         services.AddAuthorization();
 

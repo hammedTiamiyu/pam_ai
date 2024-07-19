@@ -54,7 +54,7 @@ internal class TokenService: ITokenService
 
         var refreshToken = GenerateRefreshTokenString();
         JwtFactory jwtFactory = new(_jwtOptions);
-        var (Token, _ , Expires) = jwtFactory.Generate(claimsIdentity);
+        var (Token, _, Expires) = jwtFactory.Generate(claimsIdentity);
         Tokens tokens = new()
         {
             AccessToken = Token,
@@ -86,7 +86,7 @@ internal class TokenService: ITokenService
         _logger.LogTrace("Validating signature for token {JWT}", jwt);
 
         var validationParameters = Constants.Jwt.GetApplicationTokenValidationParameters(
-            _jwtOptions.Issuer, 
+            _jwtOptions.Issuer,
             _jwtOptions.Audience);
 
         var tokenHandler = new JwtSecurityTokenHandler();
