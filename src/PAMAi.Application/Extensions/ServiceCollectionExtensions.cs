@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PAMAi.Application.Services;
+using PAMAi.Application.Services.Interfaces;
 using PAMAi.Domain.Options;
 
 namespace PAMAi.Application.Extensions;
@@ -28,7 +30,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
-        // Add services here.
+        services.AddScoped<ICountryService, CountryService>();
 
         return services;
     }

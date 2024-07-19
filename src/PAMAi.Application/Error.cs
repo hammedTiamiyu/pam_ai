@@ -21,7 +21,7 @@ public sealed record Error(string Summary, int StatusCode = StatusCodes.Status50
     /// <summary>
     /// More description of the error instance.
     /// </summary>
-    public string Description = string.Empty;
+    public string Description { get; set; } = string.Empty;
 
     /// <summary>
     /// Inner error that caused this error to occur.
