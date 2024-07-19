@@ -16,6 +16,10 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
   </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="PAMAi.Tests.Unit"/>
+    </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\PAMAi.Application\PAMAi.Application.csproj" />
     <ProjectReference Include="..\PAMAi.Domain\PAMAi.Domain.csproj" />

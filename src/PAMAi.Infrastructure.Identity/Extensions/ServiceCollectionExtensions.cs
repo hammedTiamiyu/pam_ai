@@ -108,6 +108,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Seeder>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<ITokenService, TokenService>();
 
         return services;
