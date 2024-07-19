@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using PAMAi.Application.Dto.Country;
 using PAMAi.Application.Errors;
 using PAMAi.Application.Services.Interfaces;
 using PAMAi.Application.Services.Models.Internal;
@@ -33,10 +34,36 @@ internal class CountryService: ICountryService
         _unitOfWork = unitOfWork;
     }
 
+    public async Task<Result<List<ReadCountryResponse>>> GetCountriesAsync(CancellationToken cancellationToken = default)
+    {
+        IEnumerable<Country> countries = await _unitOfWork.Countries.GetAsync(cancellationToken);
+        List<ReadCountryResponse> response = countries.Adapt<List<ReadCountryResponse>>();
+
+        return Result<List<ReadCountryResponse>>.Success(response);
+    }
+
+    public async Task<Result<List<ReadCountryStateResponse>>> GetCountryStatesAsync(int countryId, CancellationToken cancellationToken = default)
+    {
+        Country? country = await _unitOfWork.Countries.FindAsync(countryId, cancellationToken);
+        if (country is null)
+        {
+            _logger.LogError("Country {Id} does not exist", countryId);
+            return Result<List<ReadCountryStateResponse>>.Failure(DefaultErrors.NotFound with
+            {
+                Description = $"Country {countryId} does not exist.",
+            });
+        }
+
+        List<ReadCountryStateResponse> response = country.States.Adapt<List<ReadCountryStateResponse>>();
+        _logger.LogDebug("Number of states of country '{Name}: {Count}", country.Name, response.Count);
+
+        return Result<List<ReadCountryStateResponse>>.Success(response);
+    }
+
     public async Task<Result> UpdateCountriesAndStatesAsync(bool fromInternet = true, bool fallbackOnError = true, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Updating countries and states. Use internet: {UseInternet}. Use fallback: {UseFallback}", 
-            fromInternet, 
+        _logger.LogDebug("Updating countries and states. Use internet: {UseInternet}. Use fallback: {UseFallback}",
+            fromInternet,
             fallbackOnError);
 
         try
@@ -57,7 +84,7 @@ internal class CountryService: ICountryService
         }
     }
 
-    public async Task<Result> UpdateFromInternetAsync(bool fallbackOnError, CancellationToken cancellationToken = default)
+    private async Task<Result> UpdateFromInternetAsync(bool fallbackOnError, CancellationToken cancellationToken = default)
     {
         _logger.LogTrace("Updating countries from the internet");
         using HttpClient client = _httpClientFactory.CreateClient();
@@ -111,8 +138,8 @@ internal class CountryService: ICountryService
             if (fallbackOnError)
             {
                 _logger.LogWarning(
-                    exception, 
-                    "Could not update countries using the internet. Falling back to offline file. Message: {Message}", 
+                    exception,
+                    "Could not update countries using the internet. Falling back to offline file. Message: {Message}",
                     exception.Message);
                 return await UpdateFromOfflineFileAsync(cancellationToken);
             }

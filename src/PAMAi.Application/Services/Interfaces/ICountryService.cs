@@ -1,10 +1,37 @@
-﻿namespace PAMAi.Application.Services.Interfaces;
+﻿using PAMAi.Application.Dto.Country;
+
+namespace PAMAi.Application.Services.Interfaces;
 
 /// <summary>
 /// Service for operations on country and states.
 /// </summary>
 public interface ICountryService
 {
+    /// <summary>
+    /// Get all countries.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// Token to cancel operation.
+    /// </param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing all countries.
+    /// </returns>
+    Task<Result<List<ReadCountryResponse>>> GetCountriesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get the states of a country.
+    /// </summary>
+    /// <param name="countryId">
+    /// Country's ID.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// A list of the country's states if the country exists.
+    /// </returns>
+    Task<Result<List<ReadCountryStateResponse>>> GetCountryStatesAsync(int countryId, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Update countries and states in the database.
     /// </summary>

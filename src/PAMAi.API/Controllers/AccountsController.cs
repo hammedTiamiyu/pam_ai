@@ -44,7 +44,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: (data, error) => _genericFailedLoginResponse);
+            onFailure: error => _genericFailedLoginResponse);
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: (data, error) => _genericFailedLoginResponse);
+            onFailure: error => _genericFailedLoginResponse);
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: (data, error) => _genericFailedLoginResponse);
+            onFailure: error => _genericFailedLoginResponse);
     }
 
     /// <summary>
