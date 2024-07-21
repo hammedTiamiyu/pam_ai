@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PAM_Ai.ExternalServices.Services;
 using PAM_Ai.ExternalServices.Services.SMS;
 using PAMAi.Application.Exceptions;
 using PAMAi.Application.Services.Interfaces;
@@ -47,6 +48,7 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<ISmsRepository, SmsRepository>();
+        services.AddScoped<NotificationService>();
         return services;
     }
     private static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
