@@ -18,6 +18,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{893BFD1A-567F-4FBC-A146-45A64EBAAEBB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{F3E74861-7E96-4E9C-ABFA-09020DCE0097}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{32026368-4746-469D-8499-C99BBD85B2A5}"
 	ProjectSection(SolutionItems) = preProject
@@ -31,6 +34,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Tests.Unit", "..\tests\PAMAi.Tests.Unit\PAMAi.Tests.Unit.csproj", "{2D94C156-6284-45CC-B8D2-65881A9FA8B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PAMAi.Tests.Integration", "..\tests\PAMAi.Tests.Integration\PAMAi.Tests.Integration.csproj", "{012FC296-578C-4A1C-90EE-A3341661C822}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PAMAi.Infrastructure.ExternalServices", "PAM-Ai.ExternalServices\PAMAi.Infrastructure.ExternalServices.csproj", "{EAC38382-AE12-4534-9EAC-9FEC24208C27}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +71,10 @@ Global
 		{012FC296-578C-4A1C-90EE-A3341661C822}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{012FC296-578C-4A1C-90EE-A3341661C822}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{012FC296-578C-4A1C-90EE-A3341661C822}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAC38382-AE12-4534-9EAC-9FEC24208C27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAC38382-AE12-4534-9EAC-9FEC24208C27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAC38382-AE12-4534-9EAC-9FEC24208C27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAC38382-AE12-4534-9EAC-9FEC24208C27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +87,7 @@ Global
 		{E0F4BA9B-D194-4BD3-8AA7-FDEB9AED3B44} = {893BFD1A-567F-4FBC-A146-45A64EBAAEBB}
 		{2D94C156-6284-45CC-B8D2-65881A9FA8B1} = {ED9E3A70-63D8-40FD-BDC6-E8229C6A30F6}
 		{012FC296-578C-4A1C-90EE-A3341661C822} = {ED9E3A70-63D8-40FD-BDC6-E8229C6A30F6}
+		{EAC38382-AE12-4534-9EAC-9FEC24208C27} = {893BFD1A-567F-4FBC-A146-45A64EBAAEBB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BF06AC5D-6503-439B-A127-A21735AF3A50}

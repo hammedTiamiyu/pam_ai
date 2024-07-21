@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using PAM_Ai.ExternalServices.Extensions;
 using PAMAi.API.ExceptionHandlers;
 using PAMAi.API.Swagger;
 using PAMAi.Application.Extensions;
@@ -52,6 +53,7 @@ void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddSwaggerGen();
     builder.Services.AddApplication(builder.Configuration);
     builder.Services.AddIdentityInfrastructure(builder.Configuration);
+    builder.Services.AddExternalServicesInfrastructure(builder.Configuration);
     builder.Services.AddStorageInfrastructure(builder.Configuration);
     builder.Services.AddSerilog((services, loggerConfig) =>
     {

@@ -1,0 +1,5 @@
+{
+	"sdk": {
+		"version": "6.0" // Replace with the specific version of .NET 6 you want to use
+	}
+}
