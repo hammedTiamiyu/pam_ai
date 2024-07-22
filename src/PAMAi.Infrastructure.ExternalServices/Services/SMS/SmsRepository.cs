@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Infrastructure.ExternalServices.Validation;
+using Microsoft.Extensions.Configuration;
 
 namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
 {
@@ -23,6 +24,14 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
         private readonly string _apiKey;
         private readonly TermiiOptions _settings;
         private readonly ILogger<SmsRepository> _logger;
+        private IConfiguration _configuration;
+
+        public SmsRepository(IConfiguration configuration, ILogger<SmsRepository> logger)
+        {
+            _configuration = configuration;
+            _logger = logger;
+        }
+
         public SmsRepository(string baseurl, string apikey, ILogger<SmsRepository> logger, IOptions<TermiiOptions> settings)
         {
             this._baseUrl = baseurl;

@@ -18,19 +18,25 @@ public class NotificationService : INotificationService
 {
     private readonly ISmsRepository _smsRepository;
     private readonly TermiiOptions _settings;
-    private readonly ILogger<SmsRepository> _logger;
+    private readonly ILogger<NotificationService> _logger;
     private readonly FcmService _fcmService;
 
-    public NotificationService(ISmsRepository smsRepository, ILogger<SmsRepository> logger,
-        IOptions<TermiiOptions> settings, FcmService fcmService)
+    public NotificationService(ISmsRepository smsRepository, ILogger<NotificationService> logger,
+        IOptions<TermiiOptions> settings) //, FcmService fcmService)
     {
         _smsRepository = smsRepository;
         _logger = logger;
         _settings = settings.Value;
-        _fcmService = fcmService;
+       // _fcmService = fcmService;
 
     }
 
+    /// <summary>
+    /// Sends Password After USer accts and assets profile have been created
+    /// </summary>
+    /// <param name="phoneNumbers"></param>
+    /// <param name="resetPasswordLink"></param>
+    /// <returns></returns>
     public async Task<Result<SmsResponse>> SendCredentialsAsync(string phoneNumbers, string resetPasswordLink)
     {
         //TODO : fetch user's Username and password and then send it as part of the message body
@@ -44,6 +50,12 @@ public class NotificationService : INotificationService
         return await _smsRepository.SendSmsAsync(message);
     }
 
+    /// <summary>
+    /// Test SMS  with termii, always cofirm APIKEY and SENDER ID
+    /// </summary>
+    /// <param name="phoneNumber"></param>
+    /// <param name="sms"></param>
+    /// <returns></returns>
     public async Task<Result<SmsResponse>> TestSMSAsync(string phoneNumber, string sms)
     {
 
@@ -70,9 +82,16 @@ public class NotificationService : INotificationService
         return await _smsRepository.SendSmsAsync(message);
     }
 
-    public Task<Result<string>> SendPushNotificationAsync(string title, string body, string token)
+    /// <summary>
+    /// Send Push notifications using Google FCM
+    /// </summary>
+    /// <param name="title"></param>
+    /// <param name="body"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    public async Task<Result<string>> SendPushNotificationAsync(string title, string body, string token)
     {
-        //throw new NotImplementedException();
+
         return await _fcmService.SendNotificationAsync(title, body, token);
     }
 }

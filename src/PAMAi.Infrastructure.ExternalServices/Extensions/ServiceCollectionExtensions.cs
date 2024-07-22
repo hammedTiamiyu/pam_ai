@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PAM_Ai.ExternalServices.Services.FcmNotifications;
 using PAMAi.Application.Exceptions;
 using PAMAi.Application.Services.Interfaces;
@@ -35,6 +36,7 @@ public static class ServiceCollectionExtensions
     {
         services.ConfigureOptions(configuration);
         services.AddSmsSettings(configuration);
+        services.AddFcmSettings(configuration);
         services.AddServices();
         return services;
 
@@ -43,13 +45,22 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddSmsSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<TermiiOptions>(configuration.GetSection("TermiiSettings"));
+        services.AddSingleton<SmsRepository>(provider =>
+        {
+            var logger = provider.GetRequiredService<ILogger<SmsRepository>>();
+            return new SmsRepository(configuration, logger);
+        });
         return services;
     }
 
-    private static IServiceCollection FcmSettings(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddFcmSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        //services.AddSingleton<FcmService>(provider => new FcmService("path/to/google-services.json"));
-
+        services.AddSingleton<FcmService>(provider =>
+        {
+            var logger = provider.GetRequiredService<ILogger<FcmService>>();
+            return new FcmService(configuration, logger);
+        });
+   
         return services;
     }
 

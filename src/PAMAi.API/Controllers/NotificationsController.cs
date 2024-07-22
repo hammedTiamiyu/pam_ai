@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PAMAi.Application.Dto.Account;
+using PAMAi.Application.Dto.FcmPushNotifications;
 using PAMAi.Application.Dto.SMS;
 using PAMAi.Infrastructure.ExternalServices.Services;
 
@@ -49,5 +50,24 @@ public class NotificationsController : BaseController
         return result.Match(
             onSuccess: () => Ok(result),
             onFailure: ErrorResult);
+    }
+
+    /// <summary>
+    /// Test Push notifications, if its functional before injecting into services
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("test-push-notification")]
+    [ProducesResponseType(typeof(SmsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [HttpPost("send")]
+    public async Task<IActionResult> SendNotification([FromBody] PushNotificationRequest request)
+    {
+        var result = await _notificationService.SendPushNotificationAsync(request.Title, request.Body, request.Token);
+        if (result.IsSuccess)
+        {
+            return Ok(result);
+        }
+        return BadRequest(result.Error);
     }
 }
