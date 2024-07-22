@@ -60,7 +60,6 @@ public class NotificationsController : BaseController
     [HttpPost("test-push-notification")]
     [ProducesResponseType(typeof(SmsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [HttpPost("send")]
     public async Task<IActionResult> SendNotification([FromBody] PushNotificationRequest request)
     {
         var result = await _notificationService.SendPushNotificationAsync(request.Title, request.Body, request.Token);
