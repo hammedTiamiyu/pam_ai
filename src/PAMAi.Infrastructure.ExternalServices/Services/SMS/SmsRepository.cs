@@ -45,7 +45,10 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
         {
             if (!PhoneNumberValidator.AreValid(message.To))
             {
-                return Result<SmsResponse>.Failure(SMSErrors.PhoneNumberValidation);
+                return Result<SmsResponse>.Failure(SMSErrors.PhoneNumberValidation with
+                {
+                    Description = "Numbers must start with '234' and be 13 digits long.",
+                });
             }
 
             var client = new RestClient(_settings.BaseUrl);
@@ -80,13 +83,19 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
                 else
                 {
                     _logger.LogError("Failed to Send SMS to '{ phonenumber }'", message.To);
-                    return Result<SmsResponse>.Failure(SMSErrors.SMSFailure);
+                    return Result<SmsResponse>.Failure(SMSErrors.SMSFailure with
+                    {
+                        Description = "Wasn't Successful, Check Params",
+                    });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Exception: { ex.Message}");
-                return Result<SmsResponse>.Failure(SMSErrors.SMSException);
+                return Result<SmsResponse>.Failure(SMSErrors.SMSException with
+                {
+                    Description = "SMSException from Termii",
+                });
             }
         }
     

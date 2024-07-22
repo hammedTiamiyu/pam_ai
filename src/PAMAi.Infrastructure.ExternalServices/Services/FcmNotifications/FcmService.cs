@@ -63,7 +63,10 @@ public class FcmService
         catch (Exception ex)
         {
             _logger.LogError($"Exception: {ex.Message}");
-            return Result<string>.Failure(FcmErrors.FcmException);
+            return Result<string>.Failure(FcmErrors.FcmException with
+            {
+                Description = "Failed to Notifications",
+            });
         }
     }
 }
