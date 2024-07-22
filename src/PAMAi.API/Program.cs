@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
-using PAM_Ai.ExternalServices.Extensions;
 using PAMAi.API.ExceptionHandlers;
 using PAMAi.API.Swagger;
 using PAMAi.Application.Extensions;
+using PAMAi.Infrastructure.ExternalServices.Extensions;
 using PAMAi.Infrastructure.Identity.Extensions;
 using PAMAi.Infrastructure.Storage.Extensions;
 using Serilog;

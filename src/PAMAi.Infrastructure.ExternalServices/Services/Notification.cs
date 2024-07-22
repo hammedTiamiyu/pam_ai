@@ -7,23 +7,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using PAM_Ai.ExternalServices.Services.SMS;
 using PAMAi.Domain.Options;
 using Microsoft.Extensions.Options;
+using PAMAi.Infrastructure.ExternalServices.Services.SMS;
+using PAM_Ai.ExternalServices.Services.FcmNotifications;
 
-namespace PAM_Ai.ExternalServices.Services;
+namespace PAMAi.Infrastructure.ExternalServices.Services;
 
-public class NotificationService
+public class NotificationService : INotificationService
 {
     private readonly ISmsRepository _smsRepository;
     private readonly TermiiOptions _settings;
     private readonly ILogger<SmsRepository> _logger;
+    private readonly FcmService _fcmService;
 
-    public NotificationService(ISmsRepository smsRepository, ILogger<SmsRepository> logger, IOptions<TermiiOptions> settings)
+    public NotificationService(ISmsRepository smsRepository, ILogger<SmsRepository> logger,
+        IOptions<TermiiOptions> settings, FcmService fcmService)
     {
         _smsRepository = smsRepository;
         _logger = logger;
         _settings = settings.Value;
+        _fcmService = fcmService;
 
     }
 
@@ -42,7 +46,7 @@ public class NotificationService
 
     public async Task<Result<SmsResponse>> TestSMSAsync(string phoneNumber, string sms)
     {
-        
+
         var message = new SmsRequest
         {
             To = phoneNumber,
@@ -64,6 +68,12 @@ public class NotificationService
         };
 
         return await _smsRepository.SendSmsAsync(message);
+    }
+
+    public Task<Result<string>> SendPushNotificationAsync(string title, string body, string token)
+    {
+        //throw new NotImplementedException();
+        return await _fcmService.SendNotificationAsync(title, body, token);
     }
 }
 

@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PAM-Ai.ExternalServices\PAMAi.Infrastructure.ExternalServices.csproj" />
+    <ProjectReference Include="..\PAMAi.Infrastructure.ExternalServices\PAMAi.Infrastructure.ExternalServices.csproj" />
     <ProjectReference Include="..\PAMAi.Infrastructure.Identity\PAMAi.Infrastructure.Identity.csproj" />
     <ProjectReference Include="..\PAMAi.Infrastructure.Storage\PAMAi.Infrastructure.Storage.csproj" />
   </ItemGroup>

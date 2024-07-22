@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PAM_Ai.ExternalServices.Services;
 using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Dto.SMS;
+using PAMAi.Infrastructure.ExternalServices.Services;
 
 namespace PAMAi.API.Controllers;
 

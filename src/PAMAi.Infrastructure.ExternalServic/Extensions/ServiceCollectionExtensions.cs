@@ -48,7 +48,7 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<ISmsRepository, SmsRepository>();
-        services.AddScoped<NotificationService>();
+        services.AddScoped<INotificationService, NotificationService>();
         return services;
     }
     private static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
