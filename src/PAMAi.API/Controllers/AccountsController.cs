@@ -119,9 +119,9 @@ public sealed class AccountsController: BaseController
     /// </summary>
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAsync(LogoutRequest logoutParameters)
     {
-        var result = await _authenticationService.LogoutAsync("", "");
+        var result = await _authenticationService.LogoutAsync(logoutParameters.AccessToken, logoutParameters.RefreshToken);
 
         return result.Match(
             onSuccess: NoContent,
