@@ -56,4 +56,5 @@ public interface IAccountService
     /// </param>
     /// <returns></returns>
     Task<Result> AddAccountToRoleAsync(string userId, ApplicationRole role);
+    Task<Result<ReadProfileResponse>> GetProfileAsync(CancellationToken cancellationToken = default);
 }

@@ -54,5 +54,5 @@ public sealed class UserProfile: IEntity<Guid>
     /// <summary>
     /// Residence state.
     /// </summary>
-    public State? State { get; set; } = new();
+    public State? State { get; set; }
 }

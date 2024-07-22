@@ -14,13 +14,24 @@ namespace PAMAi.Infrastructure.Identity.Services;
 
 internal class AccountService: IAccountService
 {
+    private static readonly TypeAdapterConfig s_userToReadProfileResponseConfig = TypeAdapterConfig<User, ReadProfileResponse>
+        .NewConfig()
+        .Map(dest => dest.Username, src => src.UserName)
+        .Config;
+
     private readonly UserManager<User> _userManager;
+    private readonly ICurrentUser _currentUser;
     private readonly ILogger<AccountService> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AccountService(UserManager<User> userManager, ILogger<AccountService> logger, IUnitOfWork unitOfWork)
+    public AccountService(
+        UserManager<User> userManager,
+        ICurrentUser currentUser,
+        ILogger<AccountService> logger,
+        IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
+        _currentUser = currentUser;
         _logger = logger;
         _unitOfWork = unitOfWork;
     }
@@ -101,6 +112,37 @@ internal class AccountService: IAccountService
     public Task<Result> CreateUserAsync(CreateUserRequest user, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
+    }
+
+
+    public async Task<Result<ReadProfileResponse>> GetProfileAsync(CancellationToken cancellationToken = default)
+    {
+        if (!_currentUser.Any)
+        {
+            _logger.LogError("An attempt was made to get an account profile when there is no logged in user");
+            return Result<ReadProfileResponse>.Failure(AccountError.Unauthorised);
+        }
+
+        User? user = await _userManager.FindByIdAsync(_currentUser.UserId!);
+        UserProfile? userProfile = await _unitOfWork.UserProfiles.FindAsync(_currentUser.UserId!, cancellationToken);
+        if (user is null)
+        {
+            _logger.LogError("User {Id} cannot be found in the database", _currentUser.UserId);
+            return Result<ReadProfileResponse>.Failure(AccountError.Unauthorised);
+        }
+        if (userProfile is null)
+        {
+            _logger.LogError("Profile for user {Id} cannot be found in the database", _currentUser.UserId);
+            return Result<ReadProfileResponse>.Failure(new Error("Internal server error") with
+            {
+                Description = "Could not find user profile.",
+            });
+        }
+
+        ReadProfileResponse response = userProfile.Adapt<ReadProfileResponse>(ReadProfileResponse.FromUserProfile);
+        user.Adapt(response, s_userToReadProfileResponseConfig);
+
+        return Result<ReadProfileResponse>.Success(response);
     }
 
     private async Task<Result> AddAccountToRoleAsync(User user, ApplicationRole role)
