@@ -28,7 +28,8 @@ public sealed class AccountsController: BaseController
         _genericFailedLoginResponse = Problem(
             type: "about:blank",
             statusCode: StatusCodes.Status401Unauthorized,
-            title: "Invalid email/username and password.");
+            title: "Unauthorised",
+            detail: "Invalid email/username and password.");
     }
 
     /// <summary>
