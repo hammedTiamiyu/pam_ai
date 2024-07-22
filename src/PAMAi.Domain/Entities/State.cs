@@ -23,7 +23,7 @@ public sealed class State: IEntity<long>, IEquatable<State>
     /// <summary>
     /// Country navigation property.
     /// </summary>
-    public Country? Country { get; set; }
+    public Country Country { get; set; } = new();
 
     public bool Equals(State? other)
     {
