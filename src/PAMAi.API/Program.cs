@@ -1,6 +1,7 @@
 using PAMAi.API.ExceptionHandlers;
 using PAMAi.API.Swagger;
 using PAMAi.Application.Extensions;
+using PAMAi.Infrastructure.ExternalServices.Extensions;
 using PAMAi.Infrastructure.Identity.Extensions;
 using PAMAi.Infrastructure.Storage.Extensions;
 using Serilog;
@@ -50,6 +51,7 @@ void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddSwaggerGen();
     builder.Services.AddApplication(builder.Configuration);
     builder.Services.AddIdentityInfrastructure(builder.Configuration);
+    builder.Services.AddExternalServicesInfrastructure(builder.Configuration);
     builder.Services.AddStorageInfrastructure(builder.Configuration);
     builder.Services.AddSerilog((services, loggerConfig) =>
     {
