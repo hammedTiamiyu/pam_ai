@@ -18,7 +18,11 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="PAMAi.Tests.Unit"/>
+    </ItemGroup>
+
+    <ItemGroup>
     <ProjectReference Include="..\PAMAi.Domain\PAMAi.Domain.csproj" />
   </ItemGroup>
 

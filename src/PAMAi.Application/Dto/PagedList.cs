@@ -8,6 +8,22 @@ namespace PAMAi.Application.Dto;
 public sealed class PagedList<T>: List<T> where T : class
 {
     /// <summary>
+    /// Creates a new instance of <see cref="PagedList{T}"/>.
+    /// </summary>
+    /// <param name="items">Items to add to the list.</param>
+    /// <param name="totalCount">Total count of items <typeparamref name="T"/>.</param>
+    /// <param name="currentPage">Current page.</param>
+    /// <param name="pageSize">Size of the current page.</param>
+    internal PagedList(List<T> items, long totalCount, int currentPage, int pageSize)
+    {
+        TotalCount = totalCount;
+        PageSize = pageSize;
+        CurrentPage = currentPage;
+        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        AddRange(items);
+    }
+
+    /// <summary>
     /// Current page returned.
     /// </summary>
     public int CurrentPage { get; private set; }
@@ -36,22 +52,6 @@ public sealed class PagedList<T>: List<T> where T : class
     /// Indicates if there is a page that comes after the current page.
     /// </summary>
     public bool HasNext => CurrentPage < TotalPages;
-
-    /// <summary>
-    /// Creates a new instance of <see cref="PagedList{T}"/>.
-    /// </summary>
-    /// <param name="items">Items to add to the list.</param>
-    /// <param name="totalCount">Total count of items <typeparamref name="T"/>.</param>
-    /// <param name="currentPage">Current page.</param>
-    /// <param name="pageSize">Size of the current page.</param>
-    internal PagedList(List<T> items, long totalCount, int currentPage, int pageSize)
-    {
-        TotalCount = totalCount;
-        PageSize = pageSize;
-        CurrentPage = currentPage;
-        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        AddRange(items);
-    }
 
     /// <summary>
     /// Create a <see cref="PagedList{T}"/> of a data using the given page and page size.

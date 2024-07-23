@@ -1,5 +1,10 @@
-﻿using Mapster;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Logging;
 using PAMAi.Application;
 using PAMAi.Application.Dto.Account;
@@ -20,17 +25,20 @@ internal class AccountService: IAccountService
         .Config;
 
     private readonly UserManager<User> _userManager;
+    private readonly IdentityContext _identityContext;
     private readonly ICurrentUser _currentUser;
     private readonly ILogger<AccountService> _logger;
     private readonly IUnitOfWork _unitOfWork;
 
     public AccountService(
         UserManager<User> userManager,
+        IdentityContext identityContext,
         ICurrentUser currentUser,
         ILogger<AccountService> logger,
         IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
+        _identityContext = identityContext;
         _currentUser = currentUser;
         _logger = logger;
         _unitOfWork = unitOfWork;
@@ -109,11 +117,74 @@ internal class AccountService: IAccountService
         return createUserResult;
     }
 
-    public Task<Result> CreateUserAsync(CreateUserRequest user, CancellationToken cancellationToken = default)
+    async Task<Result<string>> IAccountService.CreateUserAsync(CreateUserRequest user)
     {
-        throw new NotImplementedException();
+        User? userAccount = await _userManager.FindByEmailAsync(user.Email);
+        if (userAccount is not null)
+        {
+            _logger.LogError("An account exists for {Email}", user.Email);
+
+            return Result<string>.Success(userAccount.Id);
+        }
+
+        userAccount = new()
+        {
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email,
+            UserName = user.Username,
+            PhoneNumber = user.PhoneNumber,
+        };
+        UserProfile profile = new();
+
+        Result createUserResult = await CreateAccountAsync(userAccount, profile, user.Password, ApplicationRole.User);
+
+        if (createUserResult.IsFailure)
+            return Result<string>.Failure(AccountError.UnableToCreate with
+            {
+                Description = "",
+                InnerError = createUserResult.Error,
+            });
+
+        return Result<string>.Success(userAccount.Id);
     }
 
+    public async Task<Result> DeleteAccountAsync(string accountId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            User? user = await _userManager.FindByIdAsync(accountId);
+            UserProfile? userProfile = await _unitOfWork.UserProfiles.FindAsync(accountId);
+
+            if (user is null)
+            {
+                _logger.LogInformation("Account {Id} does not exist", accountId);
+                return Result.Success();
+            }
+
+            IdentityResult result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                IEnumerable<string> errors = result.Errors.Select(e => e.Description);
+                _logger.LogError("Could not delete account {Id}. Errors: {@Errors}",
+                    accountId,
+                    errors);
+
+                return Result.Failure(AccountError.UnableToDelete);
+            }
+
+            if (userProfile is not null)
+                _unitOfWork.UserProfiles.Remove(userProfile);
+            await _unitOfWork.CompleteAsync(cancellationToken);
+
+            return Result.Success();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Could not delete account {Id}. Message: {Message}", accountId, exception.Message);
+            return Result.Failure(AccountError.UnableToDelete);
+        }
+    }
 
     public async Task<Result<ReadProfileResponse>> GetProfileAsync(CancellationToken cancellationToken = default)
     {
@@ -143,6 +214,24 @@ internal class AccountService: IAccountService
         user.Adapt(response, s_userToReadProfileResponseConfig);
 
         return Result<ReadProfileResponse>.Success(response);
+    }
+
+    public async Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default)
+    {
+        var watch = Stopwatch.StartNew();
+        List<string> similarUsernames = await _identityContext.Users
+            .Where(u => EF.Functions.Like(u.UserName, $"%{username}%"))
+            .Select(u => u.UserName ?? string.Empty)
+            .ToListAsync(cancellationToken);
+        watch.Stop();
+
+        _logger.LogDebug("Fetched usernames similar to {Username} in {Time} ms. Matches: {Count}",
+            username,
+            watch.ElapsedMilliseconds,
+            similarUsernames.Count);
+        _logger.LogTrace("Similar usernames: {@MatchingUsernames}", similarUsernames);
+
+        return similarUsernames;
     }
 
     private async Task<Result> AddAccountToRoleAsync(User user, ApplicationRole role)

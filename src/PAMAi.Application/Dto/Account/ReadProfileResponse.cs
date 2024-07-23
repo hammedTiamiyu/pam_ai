@@ -10,13 +10,13 @@ public record ReadProfileResponse
 
     /// <example>Doe</example>
     public string LastName { get; set; } = string.Empty;
-    
+
     /// <example>jane.doe@gmail.com</example>
     public string Email { get; set; } = string.Empty;
-    
+
     /// <example>janedoe</example>
     public string Username { get; set; } = string.Empty;
-    
+
     /// <example>+2348010000000</example>
     public string PhoneNumber { get; set; } = string.Empty;
 
@@ -25,28 +25,28 @@ public record ReadProfileResponse
 
     /// <example>2</example>
     public int? GenderId { get; set; }
-    
+
     /// <example>Female</example>
     public string? Gender { get; set; }
-    
+
     /// <example>1</example>
     public string? HouseNumber { get; set; }
-    
+
     /// <example>Calabar</example>
     public string? City { get; set; }
-    
+
     /// <example>299</example>
     public int? StateId { get; set; }
-    
+
     /// <example>Calabar</example>
     public string? State { get; set; }
 
     /// <example>1</example>
     public int? CountryId { get; set; } = null;
-    
+
     /// <example>Nigeria</example>
     public string? Country { get; set; }
-    
+
     /// <example>null</example>
     public string? CompanyName { get; set; }
 

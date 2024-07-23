@@ -5,13 +5,6 @@
 /// </summary>
 public enum AssetPaymentPlan
 {
-    /// <summary>
-    /// Conventional pricing.
-    /// </summary>
-    ConventionalPricing,
-
-    /// <summary>
-    /// AI dynamic pricing system.
-    /// </summary>
-    AIDynamicPricingSystem,
+    Prepaid = 1,
+    Postpaid = 2,
 }

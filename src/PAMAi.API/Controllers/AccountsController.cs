@@ -82,23 +82,6 @@ public sealed class AccountsController: BaseController
     }
 
     /// <summary>
-    /// Create user account
-    /// </summary>
-    /// <param name="user">
-    /// Account details
-    /// </param>
-    [HttpPost("users")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateUserAsync(CreateUserRequest user, CancellationToken cancellationToken)
-    {
-        var result = await _accountService.CreateUserAsync(user, cancellationToken);
-
-        return result.Match(
-            onSuccess: () => CreatedAtRoute(UsersController.GET_LOGGED_IN_USERPROFILE_ROUTE, null),
-            onFailure: ErrorResult);
-    }
-
-    /// <summary>
     /// Account login for users
     /// </summary>
     /// <param name="credential">Account credentials</param>

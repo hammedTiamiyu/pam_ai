@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PAMAi.Application.Dto.SMS;
+﻿namespace PAMAi.Application.Dto.SMS;
 public class SmsRequest
 {
     /// <summary>
@@ -18,5 +12,5 @@ public class SmsRequest
 
     //public string MediaUrl { get; set; }
     //public string MediaCaption { get; set; }
- 
+
 }

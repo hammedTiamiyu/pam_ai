@@ -9,6 +9,18 @@ namespace PAMAi.Application.Services.Interfaces;
 public interface IAccountService
 {
     /// <summary>
+    /// Adds an existing account to a role.
+    /// </summary>
+    /// <param name="userId">
+    /// Account's user ID.
+    /// </param>
+    /// <param name="role">
+    /// New role.
+    /// </param>
+    /// <returns></returns>
+    Task<Result> AddAccountToRoleAsync(string userId, ApplicationRole role);
+
+    /// <summary>
     /// Create installer account.
     /// </summary>
     /// <param name="installer">
@@ -39,22 +51,45 @@ public interface IAccountService
     /// <param name="user">
     /// Consumer.
     /// </param>
-    /// <param name="cancellationToken">
-    /// Token for cancelling the request.
-    /// </param>
-    /// <returns></returns>
-    Task<Result> CreateUserAsync(CreateUserRequest user, CancellationToken cancellationToken = default);
+    /// <returns>
+    /// User ID.
+    /// </returns>
+    protected internal Task<Result<string>> CreateUserAsync(CreateUserRequest user);
 
     /// <summary>
-    /// Adds an existing account to a role.
+    /// Delete account.
     /// </summary>
-    /// <param name="userId">
-    /// Account's user ID.
+    /// <param name="accountId">
+    /// Account ID.
     /// </param>
-    /// <param name="role">
-    /// New role.
+    /// <param name="cancellationToken">
+    /// Token to cancel the operation.
     /// </param>
     /// <returns></returns>
-    Task<Result> AddAccountToRoleAsync(string userId, ApplicationRole role);
+    Task<Result> DeleteAccountAsync(string accountId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get user's profile information.
+    /// </summary>
+    /// <param name="cancellationToken">
+    /// Token to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// The user's profile information.
+    /// </returns>
     Task<Result<ReadProfileResponse>> GetProfileAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get usernames that contain the given username in part or whole.
+    /// </summary>
+    /// <param name="username">
+    /// Username.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// A list of matching usernames.
+    /// </returns>
+    Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default);
 }

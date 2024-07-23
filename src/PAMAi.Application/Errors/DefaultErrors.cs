@@ -12,4 +12,6 @@ internal static class DefaultErrors
     /// Resource or entity not found.
     /// </summary>
     internal static readonly Error NotFound = new("Not found", StatusCodes.Status404NotFound);
+
+    internal static readonly Error Unauthorised = new("Unauthorised", StatusCodes.Status401Unauthorized);
 }

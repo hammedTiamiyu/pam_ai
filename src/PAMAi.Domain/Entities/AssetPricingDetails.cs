@@ -13,6 +13,11 @@ public class AssetPricingDetails
     public AssetPaymentPlan PaymentPlan { get; set; }
 
     /// <summary>
+    /// Pricing plan.
+    /// </summary>
+    public AssetPricingPlan PricingPlan { get; set; }
+
+    /// <summary>
     /// Amount paid by the user.
     /// </summary>
     public decimal AmountPaid { get; set; }
