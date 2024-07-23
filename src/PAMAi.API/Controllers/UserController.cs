@@ -26,7 +26,7 @@ public sealed class UsersController: BaseController
     /// Get profile of the current signed-in user.
     /// </summary>
     [HttpGet("me", Name = GET_LOGGED_IN_USERPROFILE_ROUTE)]
-    [Authorize(Roles = "SuperAdmin,Installer,User", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [RequiresRoles("SuperAdmin,Installer,User")]
     [ProducesResponseType(typeof(ReadProfileResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetLoggedInUserProfileAsync(CancellationToken cancellationToken = default)
     {
