@@ -17,6 +17,7 @@ internal sealed class UnitOfWork: IUnitOfWork
         _dbContext = dbContext;
         _logger = logger;
 
+        Assets = new AssetRepository(_dbContext, _logger);
         Countries = new CountryRepository(_dbContext, _logger);
         States = new StateRepository(_dbContext, _logger);
         UserProfiles = new UserProfileRepository(_dbContext, _logger);
@@ -27,6 +28,7 @@ internal sealed class UnitOfWork: IUnitOfWork
         Dispose(false);
     }
 
+    public IAssetRepository Assets { get; }
     public ICountryRepository Countries { get; }
     public IStateRepository States { get; }
     public IUserProfileRepository UserProfiles { get; }
