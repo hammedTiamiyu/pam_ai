@@ -364,5 +364,4 @@ FodyWeavers.xsd
 
 # Development appsettings file for overwriting configurations.
 appsettings.[Dd]evelopment.json
-appsettings.[Pr]oduction.json
-appsettings.json
+appsettings.[Pp]roduction.json
