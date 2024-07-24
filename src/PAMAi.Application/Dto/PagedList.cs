@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace PAMAi.Application.Dto;
+﻿namespace PAMAi.Application.Dto;
 
 /// <summary>
 /// Represents a paged list of <typeparamref name="T"/> items.
 /// </summary>
-public sealed class PagedList<T>: List<T> where T : class
+public sealed class PagedList<T>
 {
     /// <summary>
     /// Creates a new instance of <see cref="PagedList{T}"/>.
@@ -14,75 +12,104 @@ public sealed class PagedList<T>: List<T> where T : class
     /// <param name="totalCount">Total count of items <typeparamref name="T"/>.</param>
     /// <param name="currentPage">Current page.</param>
     /// <param name="pageSize">Size of the current page.</param>
-    internal PagedList(List<T> items, long totalCount, int currentPage, int pageSize)
+    public PagedList(List<T> items, long totalCount, int currentPage, int pageSize)
     {
-        TotalCount = totalCount;
-        PageSize = pageSize;
-        CurrentPage = currentPage;
-        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        AddRange(items);
+        Data = items;
+        Metadata = new PagedListMetadata(totalCount, currentPage, pageSize);
     }
 
     /// <summary>
-    /// Current page returned.
+    /// Paged list items.
     /// </summary>
-    public int CurrentPage { get; private set; }
+    public IReadOnlyList<T> Data { get; }
 
     /// <summary>
-    /// Number of distinct pages available for the given page size.
+    /// Metadata containing information about the paged list.
     /// </summary>
-    public int TotalPages { get; private set; }
+    public PagedListMetadata Metadata { get; }
 
     /// <summary>
-    /// Size of the current page.
+    /// Transform this paged list to a paged list of <typeparamref name="U"/>
+    /// by using Mapster.
     /// </summary>
-    public int PageSize { get; private set; }
-
-    /// <summary>
-    /// Total number of records of <typeparamref name="T"/>.
-    /// </summary>
-    public long TotalCount { get; private set; }
-
-    /// <summary>
-    /// Flag indicating if there is a page that comes before the current page.
-    /// </summary>
-    public bool HasPrevious => CurrentPage > 1;
-
-    /// <summary>
-    /// Indicates if there is a page that comes after the current page.
-    /// </summary>
-    public bool HasNext => CurrentPage < TotalPages;
-
-    /// <summary>
-    /// Create a <see cref="PagedList{T}"/> of a data using the given page and page size.
-    /// </summary>
-    /// <param name="source">Data source.</param>
-    /// <param name="pageNumber">Page number.</param>
-    /// <param name="pageSize">Page size.</param>
-    /// <returns>A <see cref="PagedList{T}"/>.</returns>
-    public static async Task<PagedList<T>> CreateAsync(
-        IQueryable<T> source,
-        int pageNumber,
-        int pageSize,
-        CancellationToken cancellationToken = default)
+    /// <typeparam name="U">
+    /// Destination type.
+    /// </typeparam>
+    /// <returns>
+    /// The transformed paged list.
+    /// </returns>
+    internal PagedList<U> Adapt<U>()
     {
-        // Count as split query if possible.
-        long count = await source
-            .AsSplitQuery()
-            .LongCountAsync(cancellationToken);
+        List<U> data = Data.Adapt<List<U>>();
+        return Clone(data);
+    }
 
-        // Skip and take as a single query.
-        // We use a single query here because a split query would first ignore the skip and take for the
-        // first query run.
-        var items = await source
-            .AsSingleQuery()
-            .Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
+    /// <summary>
+    /// Transform this paged list to a paged list of <typeparamref name="U"/>
+    /// by using Mapster.
+    /// </summary>
+    /// <typeparam name="U">
+    /// Destination type.
+    /// </typeparam>
+    /// <param name="config">
+    /// Mapster <see cref="TypeAdapterConfig"/> to use in transforming the items
+    /// of this paged list.
+    /// </param>
+    /// <returns>
+    /// The transformed paged list.
+    /// </returns>
+    internal PagedList<U> Adapt<U>(TypeAdapterConfig config)
+    {
+        List<U> data = Data.Adapt<List<U>>(config);
+        return Clone(data);
+    }
 
-        if (cancellationToken.IsCancellationRequested)
-            throw new TaskCanceledException("Operation has been cancelled.");
+    private PagedList<U> Clone<U>(List<U> items)
+    {
+        return new PagedList<U>(items, Metadata.TotalCount, Metadata.CurrentPage, Metadata.PageSize);
+    }
 
-        return new PagedList<T>(items, count, pageNumber, pageSize);
+    /// <summary>
+    /// Metadata of a paged list.
+    /// </summary>
+    public class PagedListMetadata
+    {
+        public PagedListMetadata(long totalCount, int currentPage, int pageSize)
+        {
+            TotalCount = totalCount;
+            PageSize = pageSize;
+            CurrentPage = currentPage;
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        }
+
+        /// <summary>
+        /// Current page returned.
+        /// </summary>
+        public int CurrentPage { get; }
+
+        /// <summary>
+        /// Number of distinct pages available for the given page size.
+        /// </summary>
+        public int TotalPages { get; }
+
+        /// <summary>
+        /// Size of the current page.
+        /// </summary>
+        public int PageSize { get; }
+
+        /// <summary>
+        /// Total number of records of <typeparamref name="T"/>.
+        /// </summary>
+        public long TotalCount { get; }
+
+        /// <summary>
+        /// Flag indicating if there is a page that comes before the current page.
+        /// </summary>
+        public bool HasPrevious => CurrentPage > 1;
+
+        /// <summary>
+        /// Indicates if there is a page that comes after the current page.
+        /// </summary>
+        public bool HasNext => CurrentPage < TotalPages;
     }
 }

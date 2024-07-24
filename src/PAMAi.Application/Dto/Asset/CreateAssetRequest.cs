@@ -4,7 +4,7 @@ namespace PAMAi.Application.Dto.Asset;
 
 public record CreateAssetRequest
 {
-    /// <example>=Plot 2322 Herbert Macaulay Way, Wuse, Abuja</example>
+    /// <example>Plot 2322 Herbert Macaulay Way, Wuse, Abuja</example>
     public string? Location { get; set; }
 
     /// <example>Asset name</example>

@@ -80,6 +80,16 @@ public interface IAccountService
     Task<Result<ReadProfileResponse>> GetProfileAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Get user's profile information.
+    /// </summary>
+    /// <param name="userId">User's ID.</param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns>The user's profile information.</returns>
+    Task<Result<ReadProfileResponse>> GetProfileAsync(string userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Get usernames that contain the given username in part or whole.
     /// </summary>
     /// <param name="username">
@@ -92,4 +102,13 @@ public interface IAccountService
     /// A list of matching usernames.
     /// </returns>
     Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get the ID of account matching the given email.
+    /// </summary>
+    /// <param name="email">Email address.</param>
+    /// <returns>
+    /// The account ID if there's a match, otherwise <see langword="null"/>.
+    /// </returns>
+    Task<string?> GetIdAsync(string email);
 }

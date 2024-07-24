@@ -1,10 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Logging;
 using PAMAi.Application;
 using PAMAi.Application.Dto.Account;
@@ -215,6 +212,30 @@ internal class AccountService: IAccountService
 
         return Result<ReadProfileResponse>.Success(response);
     }
+    
+    public async Task<Result<ReadProfileResponse>> GetProfileAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        User? user = await _userManager.FindByIdAsync(userId!);
+        UserProfile? userProfile = await _unitOfWork.UserProfiles.FindAsync(userId!, cancellationToken);
+        if (user is null)
+        {
+            _logger.LogError("User {Id} cannot be found in the database", userId);
+            return Result<ReadProfileResponse>.Failure(AccountError.NotFound);
+        }
+        if (userProfile is null)
+        {
+            _logger.LogError("Profile for user {Id} cannot be found in the database", userId);
+            return Result<ReadProfileResponse>.Failure(new Error("Internal server error") with
+            {
+                Description = "Could not find user profile.",
+            });
+        }
+
+        ReadProfileResponse response = userProfile.Adapt<ReadProfileResponse>(ReadProfileResponse.FromUserProfile);
+        user.Adapt(response, s_userToReadProfileResponseConfig);
+
+        return Result<ReadProfileResponse>.Success(response);
+    }
 
     public async Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default)
     {
@@ -232,6 +253,17 @@ internal class AccountService: IAccountService
         _logger.LogTrace("Similar usernames: {@MatchingUsernames}", similarUsernames);
 
         return similarUsernames;
+    }
+
+    public async Task<string?> GetIdAsync(string email)
+    {
+        User? user = await _userManager.FindByEmailAsync(email);
+        if (user is not null)
+            _logger.LogDebug("Found matching account for {Email}. Account Id: {Id}", email, user.Id);
+        else
+            _logger.LogDebug("Matching account for {Email} not found", email);
+
+        return user?.Id;
     }
 
     private async Task<Result> AddAccountToRoleAsync(User user, ApplicationRole role)

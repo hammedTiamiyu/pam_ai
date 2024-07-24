@@ -14,4 +14,5 @@ internal static class DefaultErrors
     internal static readonly Error NotFound = new("Not found", StatusCodes.Status404NotFound);
 
     internal static readonly Error Unauthorised = new("Unauthorised", StatusCodes.Status401Unauthorized);
+    internal static readonly Error Forbidden = new("Forbidden", StatusCodes.Status403Forbidden);
 }

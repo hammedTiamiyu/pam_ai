@@ -40,7 +40,7 @@ public class AssetsController: BaseController
     /// Get assets
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(PagedListResponse<PreviewAssetResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedList<PreviewAssetResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAsync([FromQuery] PaginationParameters paginationParameters, CancellationToken cancellationToken)
     {
         var result = await _assetService.GetAsync(paginationParameters, cancellationToken);

@@ -47,7 +47,7 @@ public interface IAssetService
     /// <returns>
     /// The result of the operation.
     /// </returns>
-    Task<Result<PagedListResponse<PreviewAssetResponse>>> GetAsync(PaginationParameters paginationParameters, CancellationToken cancellationToken = default);
+    Task<Result<PagedList<PreviewAssetResponse>>> GetAsync(PaginationParameters paginationParameters, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get an asset.

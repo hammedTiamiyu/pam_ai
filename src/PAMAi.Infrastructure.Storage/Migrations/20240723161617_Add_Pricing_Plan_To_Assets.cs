@@ -5,7 +5,7 @@
 namespace PAMAi.Infrastructure.Storage.Migrations
 {
     /// <inheritdoc />
-    public partial class Add_Pricing_Plan_To_Assets : Migration
+    public partial class Add_Pricing_Plan_To_Assets: Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

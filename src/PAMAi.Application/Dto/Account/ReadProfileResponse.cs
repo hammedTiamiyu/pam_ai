@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using PAMAi.Domain.Entities;
+using PAMAi.Domain.Enums;
 
 namespace PAMAi.Application.Dto.Account;
 
@@ -24,10 +25,10 @@ public record ReadProfileResponse
     public string Bio { get; set; } = string.Empty;
 
     /// <example>2</example>
-    public int? GenderId { get; set; }
+    public Gender? Gender { get; set; }
 
     /// <example>Female</example>
-    public string? Gender { get; set; }
+    public string? GenderValue => Gender.ToString();
 
     /// <example>1</example>
     public string? HouseNumber { get; set; }
@@ -53,8 +54,6 @@ public record ReadProfileResponse
     [JsonIgnore]
     public static TypeAdapterConfig FromUserProfile => TypeAdapterConfig<UserProfile, ReadProfileResponse>
         .NewConfig()
-        .EnumMappingStrategy(EnumMappingStrategy.ByName)
-        .Map(dest => dest.GenderId, src => src.Gender)
         .Map(dest => dest.State, src => src.State.Name)
         .Map(dest => dest.CountryId, src => src.State.CountryId)
         .Map(dest => dest.Country, src => src.State.Country.Name)
