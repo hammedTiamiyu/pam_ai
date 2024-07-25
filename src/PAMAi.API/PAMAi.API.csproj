@@ -33,4 +33,10 @@
     <ProjectReference Include="..\PAMAi.Infrastructure.Storage\PAMAi.Infrastructure.Storage.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="countries.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

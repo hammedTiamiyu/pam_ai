@@ -1,24 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Application;
 using PAMAi.Application.Dto.SMS;
 using PAMAi.Application.Services.Interfaces;
 using PAMAi.Domain.Options;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Infrastructure.ExternalServices.Validation;
-using Microsoft.Extensions.Configuration;
+using RestSharp;
 
 namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
 {
-    public class SmsRepository : ISmsRepository
+    public class SmsRepository: ISmsRepository
     {
         private readonly string _baseUrl;
         private readonly string _apiKey;
@@ -45,7 +39,10 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
         {
             if (!PhoneNumberValidator.AreValid(message.To))
             {
-                return Result<SmsResponse>.Failure(SMSErrors.PhoneNumberValidation);
+                return Result<SmsResponse>.Failure(SMSErrors.PhoneNumberValidation with
+                {
+                    Description = "Numbers must start with '234' and be 13 digits long.",
+                });
             }
 
             var client = new RestClient(_settings.BaseUrl);
@@ -80,15 +77,21 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
                 else
                 {
                     _logger.LogError("Failed to Send SMS to '{ phonenumber }'", message.To);
-                    return Result<SmsResponse>.Failure(SMSErrors.SMSFailure);
+                    return Result<SmsResponse>.Failure(SMSErrors.SMSFailure with
+                    {
+                        Description = "Wasn't Successful, Check Params",
+                    });
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Exception: { ex.Message}");
-                return Result<SmsResponse>.Failure(SMSErrors.SMSException);
+                _logger.LogError($"Exception: {ex.Message}");
+                return Result<SmsResponse>.Failure(SMSErrors.SMSException with
+                {
+                    Description = "SMSException from Termii",
+                });
             }
         }
-    
+
     }
 }

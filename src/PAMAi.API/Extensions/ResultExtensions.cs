@@ -23,8 +23,8 @@ public static class ResultExtensions
     /// <param name="onSuccess">Function to run if the result indicates success.</param>
     /// <param name="onFailure">Function to run if the result indicates failure.</param>
     /// <returns>An <see cref="IActionResult"/>.</returns>
-    public static IActionResult Match<T>(this Result<T> result, Func<T?, IActionResult> onSuccess, Func<T?, Error, IActionResult> onFailure)
+    public static IActionResult Match<T>(this Result<T> result, Func<T?, IActionResult> onSuccess, Func<Error, IActionResult> onFailure)
     {
-        return result.IsSuccess ? onSuccess(result.Data) : onFailure(result.Data, result.Error);
+        return result.IsSuccess ? onSuccess(result.Data) : onFailure(result.Error);
     }
 }

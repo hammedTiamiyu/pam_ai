@@ -1,19 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PAM_Ai.ExternalServices.Services.FcmNotifications;
 using PAMAi.Application.Exceptions;
 using PAMAi.Application.Services.Interfaces;
-using PAMAi.Domain.Enums;
 using PAMAi.Domain.Options;
 using PAMAi.Infrastructure.ExternalServices.Services;
 using PAMAi.Infrastructure.ExternalServices.Services.SMS;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PAMAi.Infrastructure.ExternalServices.Extensions;
 public static class ServiceCollectionExtensions
@@ -60,7 +53,7 @@ public static class ServiceCollectionExtensions
             var logger = provider.GetRequiredService<ILogger<FcmService>>();
             return new FcmService(configuration, logger);
         });
-   
+
         return services;
     }
 
@@ -72,7 +65,7 @@ public static class ServiceCollectionExtensions
     }
     private static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        
+
         return services;
     }
 

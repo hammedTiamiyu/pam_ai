@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using PAMAi.API.ExceptionHandlers;
 using PAMAi.API.Swagger;
 using PAMAi.Application.Extensions;

@@ -22,6 +22,56 @@ namespace PAMAi.Infrastructure.Storage.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("PAMAi.Domain.Entities.Asset", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset>("CreatedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("GenerationLoad")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset>("InstallationDateUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("InstallerProfileId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTimeOffset?>("LastModifiedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<Guid>("OwnerProfileId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Size")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstallationDateUtc");
+
+                    b.HasIndex("InstallerProfileId");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("OwnerProfileId");
+
+                    b.ToTable("Asset", null, t =>
+                        {
+                            t.HasComment("Installer asset.");
+                        });
+                });
+
             modelBuilder.Entity("PAMAi.Domain.Entities.Country", b =>
                 {
                     b.Property<int>("Id")
@@ -75,10 +125,13 @@ namespace PAMAi.Infrastructure.Storage.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("City")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("CompanyName")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.Property<byte?>("Gender")
@@ -87,7 +140,11 @@ namespace PAMAi.Infrastructure.Storage.Migrations
                     b.Property<string>("HouseNumber")
                         .HasColumnType("longtext");
 
-                    b.Property<long>("StateId")
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<long?>("StateId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Street")
@@ -105,10 +162,194 @@ namespace PAMAi.Infrastructure.Storage.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
+                    b.HasIndex(new[] { "FirstName", "LastName" }, "IX_UserProfile_Name");
+
                     b.ToTable("UserProfile", null, t =>
                         {
                             t.HasComment("Profiles for users.");
                         });
+                });
+
+            modelBuilder.Entity("PAMAi.Domain.Entities.Asset", b =>
+                {
+                    b.HasOne("PAMAi.Domain.Entities.UserProfile", "InstallerProfile")
+                        .WithMany()
+                        .HasForeignKey("InstallerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PAMAi.Domain.Entities.UserProfile", "OwnerProfile")
+                        .WithMany()
+                        .HasForeignKey("OwnerProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("PAMAi.Domain.Entities.AssetBatterySpecifications", "BatterySpecifications", b1 =>
+                        {
+                            b1.Property<Guid>("AssetId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<double?>("ChargeDischargeRate")
+                                .HasColumnType("double");
+
+                            b1.Property<int?>("CycleLife")
+                                .HasColumnType("int");
+
+                            b1.Property<double?>("DepthOfDischarge")
+                                .HasColumnType("double");
+
+                            b1.Property<double?>("Efficiency")
+                                .HasColumnType("double");
+
+                            b1.Property<string>("ManagementSystem")
+                                .HasColumnType("longtext");
+
+                            b1.Property<double>("TotalCapacity")
+                                .HasColumnType("double");
+
+                            b1.Property<string>("Type")
+                                .IsRequired()
+                                .HasColumnType("longtext");
+
+                            b1.Property<double?>("UsableCapacity")
+                                .HasColumnType("double");
+
+                            b1.Property<double>("Voltage")
+                                .HasColumnType("double");
+
+                            b1.Property<string>("WarrantyAndLifespan")
+                                .HasColumnType("longtext");
+
+                            b1.HasKey("AssetId");
+
+                            b1.ToTable("AssetBatterySpecifications", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AssetId");
+                        });
+
+                    b.OwnsOne("PAMAi.Domain.Entities.AssetInverterSpecifications", "InverterSpecifications", b1 =>
+                        {
+                            b1.Property<Guid>("AssetId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<double>("Capacity")
+                                .HasColumnType("double");
+
+                            b1.Property<string>("Certifications")
+                                .HasColumnType("longtext");
+
+                            b1.Property<string>("CommunicationFeatures")
+                                .HasColumnType("longtext");
+
+                            b1.Property<double>("Efficiency")
+                                .HasColumnType("double");
+
+                            b1.Property<double>("InputVoltageHigh")
+                                .HasColumnType("double");
+
+                            b1.Property<double>("InputVoltageLow")
+                                .HasColumnType("double");
+
+                            b1.Property<string>("MpptChannels")
+                                .HasColumnType("longtext");
+
+                            b1.Property<string>("ProtectionFeatures")
+                                .HasColumnType("longtext");
+
+                            b1.Property<int?>("SystemDesign")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Type")
+                                .HasColumnType("longtext");
+
+                            b1.HasKey("AssetId");
+
+                            b1.ToTable("AssetInverterSpecifications", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AssetId");
+                        });
+
+                    b.OwnsOne("PAMAi.Domain.Entities.AssetPricingDetails", "PricingDetails", b1 =>
+                        {
+                            b1.Property<Guid>("AssetId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<decimal>("AmountPaid")
+                                .HasColumnType("decimal(65,30)");
+
+                            b1.Property<int>("PaymentPlan")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("PricingPlan")
+                                .HasColumnType("int");
+
+                            b1.HasKey("AssetId");
+
+                            b1.HasIndex("PaymentPlan");
+
+                            b1.ToTable("AssetPricingDetails", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AssetId");
+                        });
+
+                    b.OwnsOne("PAMAi.Domain.Entities.AssetSolarSpecifications", "SolarSpecifications", b1 =>
+                        {
+                            b1.Property<Guid>("AssetId")
+                                .HasColumnType("char(36)");
+
+                            b1.Property<int>("EfficiencyRating")
+                                .HasColumnType("int");
+
+                            b1.Property<int?>("EnergyConsumptionHabit")
+                                .HasColumnType("int");
+
+                            b1.Property<double?>("EnergyGeneratedDaily")
+                                .HasColumnType("double");
+
+                            b1.Property<int?>("EnergyUsageFlexibility")
+                                .HasColumnType("int");
+
+                            b1.Property<int>("PanelCount")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("PanelType")
+                                .HasColumnType("longtext");
+
+                            b1.Property<int?>("PeakEnergyUsageTime")
+                                .HasColumnType("int");
+
+                            b1.Property<bool?>("PotentialShading")
+                                .HasColumnType("tinyint(1)");
+
+                            b1.Property<int>("Size")
+                                .HasColumnType("int");
+
+                            b1.HasKey("AssetId");
+
+                            b1.ToTable("AssetSolarSpecifications", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AssetId");
+                        });
+
+                    b.Navigation("BatterySpecifications")
+                        .IsRequired();
+
+                    b.Navigation("InstallerProfile");
+
+                    b.Navigation("InverterSpecifications")
+                        .IsRequired();
+
+                    b.Navigation("OwnerProfile");
+
+                    b.Navigation("PricingDetails")
+                        .IsRequired();
+
+                    b.Navigation("SolarSpecifications")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PAMAi.Domain.Entities.State", b =>
@@ -127,8 +368,7 @@ namespace PAMAi.Infrastructure.Storage.Migrations
                     b.HasOne("PAMAi.Domain.Entities.State", "State")
                         .WithMany()
                         .HasForeignKey("StateId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("State");
                 });

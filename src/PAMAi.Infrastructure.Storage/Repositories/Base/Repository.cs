@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using PAMAi.Application.Dto;
-using PAMAi.Application.Storage;
+using PAMAi.Application.Dto.Parameters;
 using PAMAi.Application.Storage.Base;
 using PAMAi.Domain.Entities.Base;
 using PAMAi.Infrastructure.Storage.Contexts;
@@ -78,7 +78,10 @@ internal abstract class Repository<TEntity>: IRepository<TEntity>
         return entities;
     }
 
-    public virtual async Task<PagedList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, QueryParameters queryParameters, CancellationToken cancellationToken = default)
+    public virtual async Task<PagedList<TEntity>> FindAsync(
+        Expression<Func<TEntity, bool>> predicate,
+        PaginationParameters paginationParams,
+        CancellationToken cancellationToken = default)
     {
         Logger.LogTrace(
            "Finding {entity} records that satisfy the condition `{condition}`",
@@ -86,19 +89,16 @@ internal abstract class Repository<TEntity>: IRepository<TEntity>
            predicate.Body.Print());
 
         var watch = Stopwatch.StartNew();
-        var entities = await PagedList<TEntity>.CreateAsync(
-            DbContext.Set<TEntity>().Where(predicate),
-            queryParameters.Page,
-            queryParameters.PageSize,
-            cancellationToken);
+        var entities = await DbContext
+            .Set<TEntity>()
+            .Where(predicate)
+            .ToPagedListAsync(paginationParams.Page, paginationParams.PageSize, cancellationToken);
         watch.Stop();
-        Logger.LogDebug(
-            "Retrieved page {page} containing {count} {entity} records that satisfy the condition `{condition}` in {time} ms",
-            queryParameters.Page,
-            entities.Count,
+        Logger.LogDebug("Retrieved {Entity} records satisfying the condition `{Condition}` in {Time} ms. Parameters: {@Params}",
             typeof(TEntity).Name,
             predicate.Body.Print(),
-            watch.ElapsedMilliseconds);
+            watch.ElapsedMilliseconds,
+            paginationParams);
 
         return entities;
     }
@@ -118,27 +118,23 @@ internal abstract class Repository<TEntity>: IRepository<TEntity>
         return entities;
     }
 
-    public virtual async Task<PagedList<TEntity>> GetPagedListAsync(QueryParameters queryParameters, CancellationToken cancellationToken = default)
+    public virtual async Task<PagedList<TEntity>> GetAsync(PaginationParameters paginationParams, CancellationToken cancellationToken = default)
     {
         Logger.LogTrace(
             "Retrieving paged list of {entity} records (page = {page}, page size = {size})",
             typeof(TEntity).Name,
-            queryParameters.Page,
-            queryParameters.PageSize);
+            paginationParams.Page,
+            paginationParams.PageSize);
 
         var watch = Stopwatch.StartNew();
-        var entities = await PagedList<TEntity>.CreateAsync(
-            DbContext.Set<TEntity>(),
-            queryParameters.Page,
-            queryParameters.PageSize,
-            cancellationToken);
+        var entities = await DbContext
+            .Set<TEntity>()
+            .ToPagedListAsync(paginationParams.Page, paginationParams.PageSize, cancellationToken);
         watch.Stop();
-        Logger.LogDebug(
-            "Retrieved page {page} containing {number} {entity} records in {time} ms",
-            queryParameters.Page,
-            entities.Count,
+        Logger.LogDebug("Retrieved {Entity} records in {Time} ms. Parameters: {@Params}",
             typeof(TEntity).Name,
-            watch.ElapsedMilliseconds);
+            watch.ElapsedMilliseconds,
+            paginationParams);
 
         return entities;
     }

@@ -54,11 +54,14 @@ internal sealed class AuthenticationService: IAuthenticationService
         // Try to find user by username if there was no email match.
         user ??= await _userManager.FindByNameAsync(credentials.Username);
 
-        // If uer is null despite the search using their username and email.
+        // If user is null despite the search using their username and email.
         if (user is null)
         {
             _logger.LogError("Login failed. No account matches username/email '{Username}'", credentials.Username);
-            return Result<LoginResponse>.Failure(AccountError.DoesNotExist);
+            return Result<LoginResponse>.Failure(AuthenticationErrors.LoginFailed with
+            {
+                Description = $"No account exists for '{credentials.Username}'.",
+            });
         }
 
         // Check if user is in role.
@@ -66,19 +69,20 @@ internal sealed class AuthenticationService: IAuthenticationService
         if (!isInRole)
         {
             _logger.LogError("Login failed. Account '{Username}' is not in {Role} role", credentials.Username, loginAsRole);
-            Error error = AccountError.IsNotInRole with
+            return Result<LoginResponse>.Failure(AuthenticationErrors.LoginFailed with
             {
-                Summary = string.Format(AccountError.IsNotInRole.Summary, loginAsRole),
-            };
-
-            return Result<LoginResponse>.Failure(error);
+                Description = $"Account is not in {loginAsRole} role.",
+            });
         }
 
         bool loginSuccessful = await _userManager.CheckPasswordAsync(user, credentials.Password);
         if (!loginSuccessful)
         {
             _logger.LogError("Login failed. '{Username}' attempted to log in with a wrong password", credentials.Username);
-            return Result<LoginResponse>.Failure(AccountError.InvalidCredentials);
+            return Result<LoginResponse>.Failure(AuthenticationErrors.LoginFailed with
+            {
+                Description = "Invalid credentials.",
+            });
         }
 
         ClaimsIdentity claimsIdentity = await GetUserClaimsIdentityAsync(user, loginAsRole);
@@ -105,14 +109,16 @@ internal sealed class AuthenticationService: IAuthenticationService
         bool hasValidSignature = await _tokenService.ValidateTokenSignatureAsync(accessToken);
         if (!hasValidSignature)
         {
-            _logger.LogWarning(
-                "An attempt to logout was made with an invalid token. Info: {@info}",
+            _logger.LogWarning("An attempt to logout was made with an invalid access token. Info: {@info}",
                 new
                 {
                     Token = accessToken,
                     RefreshToken = refreshToken,
                 });
-            return Result.Failure(TokenErrors.InvalidOrExpired);
+            return Result.Failure(AuthenticationErrors.LogoutFailed with
+            {
+                Description = "Invalid access token.",
+            });
         }
 
         User? user = await GetUserByRefreshTokenAsync(refreshToken);
@@ -120,16 +126,30 @@ internal sealed class AuthenticationService: IAuthenticationService
         {
             _logger.LogInformation("Logout failed. Refresh token {Token} does not match any user", refreshToken);
 
-            return Result.Failure(AuthenticationErrors.LogoutFailed);
+            return Result.Failure(AuthenticationErrors.LogoutFailed with
+            {
+                Description = "Invalid refresh token.",
+            });
         }
-        user = MarkRefreshTokenAsRevoked(user, refreshToken);
 
+        user = MarkRefreshTokenAsRevoked(user, refreshToken);
         await _tokenService.BlacklistJwtAsync(accessToken);
         _identityContext.Update(user);
         await _identityContext.SaveChangesAsync();
-
         _logger.LogInformation("User {Email} logged out", user.Email);
+
         return Result.Success();
+    }
+
+    private static User MarkRefreshTokenAsRevoked(User user, string refreshToken)
+    {
+        string hashed = refreshToken.ToSha512Base64UrlEncoding();
+
+        user.RefreshTokens
+            .First(r => r.Token.Equals(hashed, StringComparison.OrdinalIgnoreCase))
+            .RevokedUtc = DateTimeOffset.UtcNow;
+
+        return user;
     }
 
     private async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
@@ -142,17 +162,6 @@ internal sealed class AuthenticationService: IAuthenticationService
             .FirstOrDefaultAsync();
 
         _logger.LogTrace("Refresh token {Token} does not match any user", refreshToken);
-
-        return user;
-    }
-
-    private User MarkRefreshTokenAsRevoked(User user, string refreshToken)
-    {
-        string hashed = refreshToken.ToSha512Base64UrlEncoding();
-
-        user.RefreshTokens
-            .First(r => r.Token.Equals(hashed, StringComparison.OrdinalIgnoreCase))
-            .RevokedUtc = DateTimeOffset.UtcNow;
 
         return user;
     }

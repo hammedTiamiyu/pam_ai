@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PAMAi.Application.Dto.SMS;
+﻿namespace PAMAi.Application.Dto.SMS;
 public class SmsResponse
 {
     public string MessageId { get; set; }

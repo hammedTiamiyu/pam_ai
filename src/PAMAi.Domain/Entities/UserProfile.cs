@@ -12,6 +12,21 @@ public sealed class UserProfile: IEntity<Guid>
     public Guid Id { get; set; }
 
     /// <summary>
+    /// First name.
+    /// </summary>
+    public string FirstName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Last name.
+    /// </summary>
+    public string LastName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Full name.
+    /// </summary>
+    public string FullName => $"{FirstName} {LastName}";
+
+    /// <summary>
     /// Bio.
     /// </summary>
     public string Bio { get; set; } = string.Empty;
@@ -34,12 +49,12 @@ public sealed class UserProfile: IEntity<Guid>
     /// <summary>
     /// City.
     /// </summary>
-    public string City { get; set; } = string.Empty;
+    public string? City { get; set; }
 
     /// <summary>
     /// Residence state primary key.
     /// </summary>
-    public long StateId { get; set; }
+    public long? StateId { get; set; }
 
     /// <summary>
     /// Company.

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using PAMAi.Application.Dto;
+using PAMAi.Application.Dto.Parameters;
 using PAMAi.Domain.Entities.Base;
 
 namespace PAMAi.Application.Storage.Base;
@@ -45,12 +46,12 @@ public interface IRepository<TEntity> where TEntity : class, IEntity
     /// <summary>
     /// Return a paged list of <typeparamref name="TEntity"/> items.
     /// </summary>
-    /// <param name="queryParameters">
-    /// Query parameters.
+    /// <param name="paginationParams">
+    /// Pagination parameters.
     /// </param>
     /// <param name="cancellationToken"></param>
     /// <returns>A paged list of <typeparamref name="TEntity"/>.</returns>
-    Task<PagedList<TEntity>> GetPagedListAsync(QueryParameters queryParameters, CancellationToken cancellationToken = default);
+    Task<PagedList<TEntity>> GetAsync(PaginationParameters paginationParams, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Find all records which satisfy the given condition.
@@ -70,12 +71,12 @@ public interface IRepository<TEntity> where TEntity : class, IEntity
     /// <param name="predicate">
     /// Predicate holding the condition.
     /// </param>
-    /// <param name="queryParameters">
+    /// <param name="paginationParams">
     /// Pagination parameters.
     /// </param>
     /// <param name="cancellationToken"></param>
     /// <returns>A paged list of <typeparamref name="TEntity"/> that satisfy the given condition.</returns>
-    Task<PagedList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, QueryParameters queryParameters, CancellationToken cancellationToken = default);
+    Task<PagedList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, PaginationParameters paginationParams, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Returns the first record of <typeparamref name="TEntity"/>.

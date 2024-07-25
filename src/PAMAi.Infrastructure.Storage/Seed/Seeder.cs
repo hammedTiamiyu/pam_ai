@@ -1,17 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
+using PAMAi.Application.Services.Interfaces;
 using PAMAi.Application.Storage;
 
 namespace PAMAi.Infrastructure.Storage.Seed;
 internal sealed partial class Seeder
 {
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<Seeder> _logger;
+    private readonly ICountryService _countryService;
 
-    public Seeder(IHttpClientFactory httpClientFactory, IUnitOfWork unitOfWork, ILogger<Seeder> logger)
+    public Seeder(IUnitOfWork unitOfWork, ILogger<Seeder> logger, ICountryService countryService)
     {
-        _httpClientFactory = httpClientFactory;
         _unitOfWork = unitOfWork;
         _logger = logger;
+        _countryService = countryService;
     }
 }

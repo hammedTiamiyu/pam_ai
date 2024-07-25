@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PAMAi.Domain.Options;
+﻿namespace PAMAi.Domain.Options;
 public class TermiiOptions
 {
     public string BaseUrl { get; set; }

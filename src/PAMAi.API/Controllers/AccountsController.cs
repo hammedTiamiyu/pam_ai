@@ -28,7 +28,8 @@ public sealed class AccountsController: BaseController
         _genericFailedLoginResponse = Problem(
             type: "about:blank",
             statusCode: StatusCodes.Status401Unauthorized,
-            title: "Invalid email/username and password.");
+            title: "Unauthorised",
+            detail: "Invalid email/username and password.");
     }
 
     /// <summary>
@@ -44,7 +45,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: (data, error) => _genericFailedLoginResponse);
+            onFailure: error => _genericFailedLoginResponse);
     }
 
     /// <summary>
@@ -77,24 +78,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: (data, error) => _genericFailedLoginResponse);
-    }
-
-    /// <summary>
-    /// Create user account
-    /// </summary>
-    /// <param name="user">
-    /// Account details
-    /// </param>
-    [HttpPost("users")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateUserAsync(CreateUserRequest user, CancellationToken cancellationToken)
-    {
-        var result = await _accountService.CreateUserAsync(user, cancellationToken);
-
-        return result.Match(
-            onSuccess: () => CreatedAtRoute(UsersController.GET_LOGGED_IN_USERPROFILE_ROUTE, null),
-            onFailure: ErrorResult);
+            onFailure: error => _genericFailedLoginResponse);
     }
 
     /// <summary>
@@ -110,7 +94,7 @@ public sealed class AccountsController: BaseController
 
         return result.Match(
             onSuccess: Ok,
-            onFailure: (data, error) => _genericFailedLoginResponse);
+            onFailure: error => _genericFailedLoginResponse);
     }
 
     /// <summary>
@@ -118,9 +102,9 @@ public sealed class AccountsController: BaseController
     /// </summary>
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAsync(LogoutRequest logoutParameters)
     {
-        var result = await _authenticationService.LogoutAsync("", "");
+        var result = await _authenticationService.LogoutAsync(logoutParameters.AccessToken, logoutParameters.RefreshToken);
 
         return result.Match(
             onSuccess: NoContent,

@@ -1,9 +1,6 @@
-﻿namespace PAMAi.Application.Storage;
+﻿namespace PAMAi.Application.Dto.Parameters;
 
-/// <summary>
-/// Parameters used to search and paginate items from the data source.
-/// </summary>
-public class QueryParameters
+public record PaginationParameters
 {
     private int _page = 1;
     private int _pageSize = 10;
@@ -27,9 +24,4 @@ public class QueryParameters
         get => _pageSize;
         set => _pageSize = value < 1 ? 10 : value;
     }
-
-    /// <summary>
-    /// Search query.
-    /// </summary>
-    public string? SearchQuery { get; set; }
 }

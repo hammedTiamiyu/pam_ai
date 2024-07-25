@@ -3,18 +3,8 @@ using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Application;
-using PAMAi.Application.Dto.SMS;
 using PAMAi.Infrastructure.ExternalServices.Errors;
-using PAMAi.Infrastructure.ExternalServices.Services;
-using PAMAi.Infrastructure.ExternalServices.Services.SMS;
-using Serilog.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PAM_Ai.ExternalServices.Services.FcmNotifications;
 public class FcmService
@@ -63,7 +53,10 @@ public class FcmService
         catch (Exception ex)
         {
             _logger.LogError($"Exception: {ex.Message}");
-            return Result<string>.Failure(FcmErrors.FcmException);
+            return Result<string>.Failure(FcmErrors.FcmException with
+            {
+                Description = "Failed to Notifications",
+            });
         }
     }
 }
