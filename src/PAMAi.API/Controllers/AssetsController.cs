@@ -70,10 +70,14 @@ public class AssetsController: BaseController
     /// </summary>
     /// <param name="id">Asset ID</param>
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public Task<IActionResult> UpdateAsync(Guid id, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ReadAssetResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateAsync(Guid id, UpdateAssetRequest asset, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await _assetService.UpdateAsync(id, asset, cancellationToken);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: ErrorResult);
     }
 
     /// <summary>

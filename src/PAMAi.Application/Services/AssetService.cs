@@ -84,13 +84,16 @@ internal class AssetService: IAssetService
         }
 
         _unitOfWork.Assets.Remove(asset);
-        await _unitOfWork.CompleteAsync(cancellationToken);
         bool userOwnsMultipleAssets = await UserHasMultipleAssetsAsync(asset.OwnerProfileId, cancellationToken);
         if (!userOwnsMultipleAssets)
         {
+            // Note: Because of the cascading relationship between UserProfile and Asset, deleting the UserProfile
+            // already deletes the Asset.
             await _accountService.DeleteAccountAsync(asset.OwnerProfile.UserId.ToString(), cancellationToken);
         }
+        await _unitOfWork.CompleteAsync(cancellationToken);
 
+        _logger.LogInformation("Installer {Id} deleted asset {Id}", _currentUser.UserId, id);
         return Result.Success();
     }
 
@@ -107,6 +110,9 @@ internal class AssetService: IAssetService
         PagedList<Asset> asset = await _unitOfWork.Assets.GetAsync(_currentUser.UserId!, paginationParameters, cancellationToken);
         PagedList<PreviewAssetResponse> response = asset.Adapt<PreviewAssetResponse>(PreviewAssetResponse.FromAsset);
 
+        _logger.LogInformation("User {Id} fetched assets they created. Params: {@Params}",
+            _currentUser.UserId,
+            paginationParameters);
         return Result<PagedList<PreviewAssetResponse>>.Success(response);
     }
 
@@ -136,14 +142,45 @@ internal class AssetService: IAssetService
             return Result<ReadAssetResponse>.Failure(DefaultErrors.Forbidden);
         }
 
-        Result<ReadProfileResponse> result = await _accountService.GetProfileAsync(asset.OwnerProfile.UserId.ToString(), cancellationToken);
-        ReadProfileResponse? ownerProfile = result.Data;
-        ReadAssetResponse response = asset.Adapt<ReadAssetResponse>();
-        response.PhoneNumber = ownerProfile?.PhoneNumber;
-        response.Email = ownerProfile?.Email;
-        response.OwnerName = $"{ownerProfile?.FirstName} {ownerProfile?.LastName}".Trim();
-
+        ReadAssetResponse response = await TransformToReadResponseAsync(asset, cancellationToken);
         _logger.LogInformation("Account {AccountId} fetched asset {Id}", _currentUser.UserId, id);
+
+        return Result<ReadAssetResponse>.Success(response);
+    }
+
+    public async Task<Result<ReadAssetResponse>> UpdateAsync(Guid id, UpdateAssetRequest updatedAsset, CancellationToken cancellationToken = default)
+    {
+        if (!_currentUser.Any)
+        {
+            _logger.LogError("Cannot view asset. There is no authenticated user");
+            return Result<ReadAssetResponse>.Failure(DefaultErrors.Unauthorised);
+        }
+
+        Asset? asset = await _unitOfWork.Assets.FindAsync(id, cancellationToken);
+        if (asset is null)
+        {
+            _logger.LogError("Asset {Id} not found", id);
+            return Result<ReadAssetResponse>.Failure(DefaultErrors.NotFound with
+            {
+                Description = $"Asset {id} not found.",
+            });
+        }
+
+        if (!CurrentUserIsAssetInstaller(asset.InstallerProfile.UserId.ToString()))
+        {
+            _logger.LogError("Account {Id} attempted to view asset {AssetId} which they didn't install",
+                _currentUser.UserId,
+                id);
+            return Result<ReadAssetResponse>.Failure(DefaultErrors.Forbidden);
+        }
+
+        updatedAsset.Adapt(asset);
+        asset.LastModifiedUtc = DateTimeOffset.Now;
+        await _unitOfWork.CompleteAsync(cancellationToken);
+
+        ReadAssetResponse response = await TransformToReadResponseAsync(asset, cancellationToken);
+        _logger.LogInformation("Installer {AccountId} updated asset {Id}", _currentUser.UserId, id);
+
         return Result<ReadAssetResponse>.Success(response);
     }
 
@@ -258,5 +295,17 @@ internal class AssetService: IAssetService
     private async Task<bool> UserHasMultipleAssetsAsync(Guid userProfileId, CancellationToken cancellationToken = default)
     {
         return await _unitOfWork.Assets.UserHasMultipleAssetsAsync(userProfileId, cancellationToken);
+    }
+
+    private async Task<ReadAssetResponse> TransformToReadResponseAsync(Asset asset, CancellationToken cancellationToken = default)
+    {
+        Result<ReadProfileResponse> result = await _accountService.GetProfileAsync(asset.OwnerProfile.UserId.ToString(), cancellationToken);
+        ReadProfileResponse? ownerProfile = result.Data;
+        ReadAssetResponse response = asset.Adapt<ReadAssetResponse>();
+        response.PhoneNumber = ownerProfile?.PhoneNumber;
+        response.Email = ownerProfile?.Email;
+        response.OwnerName = $"{ownerProfile?.FirstName} {ownerProfile?.LastName}".Trim();
+
+        return response;
     }
 }

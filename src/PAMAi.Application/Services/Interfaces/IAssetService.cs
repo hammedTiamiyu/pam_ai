@@ -62,4 +62,21 @@ public interface IAssetService
     /// The asset if the result is successful.
     /// </returns>
     Task<Result<ReadAssetResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Update asset.
+    /// </summary>
+    /// <param name="id">
+    /// Asset ID.
+    /// </param>
+    /// <param name="asset">
+    /// Updated asset.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// Updated asset.
+    /// </returns>
+    Task<Result<ReadAssetResponse>> UpdateAsync(Guid id, UpdateAssetRequest asset, CancellationToken cancellationToken = default);
 }
