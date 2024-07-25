@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PAMAi.Infrastructure.Identity.Seed;
 
 namespace PAMAi.Infrastructure.Identity.Extensions;
@@ -21,6 +22,10 @@ public static class WebApplicationExtensions
 
         await seeder.CreateApplicationRolesAsync();
         await seeder.CreateDefaultSuperAdminAsync();
+        if (app.Environment.IsDevelopment())
+        {
+            await seeder.CreateDefaultInstallerAsync();
+        }
 
         return app;
     }

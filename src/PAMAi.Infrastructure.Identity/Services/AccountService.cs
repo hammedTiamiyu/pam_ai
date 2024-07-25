@@ -71,8 +71,6 @@ internal class AccountService: IAccountService
 
         user = new User
         {
-            FirstName = installer.FirstName,
-            LastName = installer.LastName,
             Email = installer.Email,
             UserName = installer.Username,
             PhoneNumber = installer.PhoneNumber,
@@ -98,52 +96,14 @@ internal class AccountService: IAccountService
 
         user = new User
         {
-            FirstName = superAdmin.FirstName,
-            LastName = superAdmin.LastName,
             Email = superAdmin.Email,
             UserName = superAdmin.Username,
             PhoneNumber = superAdmin.PhoneNumber,
         };
-        UserProfile profile = new()
-        {
-            StateId = superAdmin.StateId,
-        };
-
+        UserProfile profile = superAdmin.Adapt<UserProfile>();
         Result createUserResult = await CreateAccountAsync(user, profile, superAdmin.Password, ApplicationRole.SuperAdmin);
 
         return createUserResult;
-    }
-
-    async Task<Result<string>> IAccountService.CreateUserAsync(CreateUserRequest user)
-    {
-        User? userAccount = await _userManager.FindByEmailAsync(user.Email);
-        if (userAccount is not null)
-        {
-            _logger.LogError("An account exists for {Email}", user.Email);
-
-            return Result<string>.Success(userAccount.Id);
-        }
-
-        userAccount = new()
-        {
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            UserName = user.Username,
-            PhoneNumber = user.PhoneNumber,
-        };
-        UserProfile profile = new();
-
-        Result createUserResult = await CreateAccountAsync(userAccount, profile, user.Password, ApplicationRole.User);
-
-        if (createUserResult.IsFailure)
-            return Result<string>.Failure(AccountError.UnableToCreate with
-            {
-                Description = "",
-                InnerError = createUserResult.Error,
-            });
-
-        return Result<string>.Success(userAccount.Id);
     }
 
     public async Task<Result> DeleteAccountAsync(string accountId, CancellationToken cancellationToken = default)
@@ -159,14 +119,9 @@ internal class AccountService: IAccountService
                 return Result.Success();
             }
 
-            IdentityResult result = await _userManager.DeleteAsync(user);
-            if (!result.Succeeded)
+            Result result = await DeleteAccountAsync(user);
+            if (result.IsFailure)
             {
-                IEnumerable<string> errors = result.Errors.Select(e => e.Description);
-                _logger.LogError("Could not delete account {Id}. Errors: {@Errors}",
-                    accountId,
-                    errors);
-
                 return Result.Failure(AccountError.UnableToDelete);
             }
 
@@ -191,28 +146,9 @@ internal class AccountService: IAccountService
             return Result<ReadProfileResponse>.Failure(AccountError.Unauthorised);
         }
 
-        User? user = await _userManager.FindByIdAsync(_currentUser.UserId!);
-        UserProfile? userProfile = await _unitOfWork.UserProfiles.FindAsync(_currentUser.UserId!, cancellationToken);
-        if (user is null)
-        {
-            _logger.LogError("User {Id} cannot be found in the database", _currentUser.UserId);
-            return Result<ReadProfileResponse>.Failure(AccountError.Unauthorised);
-        }
-        if (userProfile is null)
-        {
-            _logger.LogError("Profile for user {Id} cannot be found in the database", _currentUser.UserId);
-            return Result<ReadProfileResponse>.Failure(new Error("Internal server error") with
-            {
-                Description = "Could not find user profile.",
-            });
-        }
-
-        ReadProfileResponse response = userProfile.Adapt<ReadProfileResponse>(ReadProfileResponse.FromUserProfile);
-        user.Adapt(response, s_userToReadProfileResponseConfig);
-
-        return Result<ReadProfileResponse>.Success(response);
+        return await GetProfileAsync(_currentUser.UserId!, cancellationToken);
     }
-    
+
     public async Task<Result<ReadProfileResponse>> GetProfileAsync(string userId, CancellationToken cancellationToken = default)
     {
         User? user = await _userManager.FindByIdAsync(userId!);
@@ -237,7 +173,76 @@ internal class AccountService: IAccountService
         return Result<ReadProfileResponse>.Success(response);
     }
 
-    public async Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default)
+    async Task<Result<Guid>> IAccountService.CreateUserAsync(CreateUserRequest user)
+    {
+        Guid? profileId = await GetProfileIdAsync(user.Email);
+        if (profileId is not null)
+        {
+            _logger.LogError("An account exists for {Email}", user.Email);
+
+            return Result<Guid>.Success((Guid)profileId);
+        }
+
+        User userAccount = new()
+        {
+            Email = user.Email,
+            UserName = user.Username,
+            PhoneNumber = user.PhoneNumber,
+        };
+        UserProfile profile = user.Adapt<UserProfile>();
+        Result createUserResult = await CreateAccountAsync(userAccount, profile, user.Password, ApplicationRole.User);
+
+        if (createUserResult.IsFailure)
+            return Result<Guid>.Failure(AccountError.UnableToCreate with
+            {
+                Description = "",
+                InnerError = createUserResult.Error,
+            });
+
+        return Result<Guid>.Success(profile.Id);
+    }
+
+    async Task<Result> IAccountService.DeleteAccountAsync(Guid accountProfileId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            UserProfile? userProfile = await _unitOfWork.UserProfiles.FindAsync(accountProfileId);
+            if (userProfile is null)
+            {
+                _logger.LogError("Could not delete user. User profile {Id} is null", accountProfileId);
+                return Result.Failure(AccountError.UnableToDelete with
+                {
+                    Description = $"User profile {accountProfileId.ToString()} cannot be found.",
+                });
+            }
+
+            User? user = await _userManager.FindByIdAsync(userProfile.UserId.ToString());
+            if (user is null)
+            {
+                _logger.LogInformation("Account {Id} does not exist", userProfile.UserId.ToString());
+                return Result.Success();
+            }
+
+            Result result = await DeleteAccountAsync(user);
+            if (result.IsFailure)
+            {
+                return Result.Failure(AccountError.UnableToDelete);
+            }
+
+            if (userProfile is not null)
+                _unitOfWork.UserProfiles.Remove(userProfile);
+            await _unitOfWork.CompleteAsync(cancellationToken);
+
+            return Result.Success();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Could not delete account {Id}. Message: {Message}", accountProfileId, exception.Message);
+            return Result.Failure(AccountError.UnableToDelete);
+        }
+    }
+
+    async Task<List<string>> IAccountService.GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken)
     {
         var watch = Stopwatch.StartNew();
         List<string> similarUsernames = await _identityContext.Users
@@ -255,15 +260,14 @@ internal class AccountService: IAccountService
         return similarUsernames;
     }
 
-    public async Task<string?> GetIdAsync(string email)
+    async Task<string?> IAccountService.GetIdAsync(string email)
     {
-        User? user = await _userManager.FindByEmailAsync(email);
-        if (user is not null)
-            _logger.LogDebug("Found matching account for {Email}. Account Id: {Id}", email, user.Id);
-        else
-            _logger.LogDebug("Matching account for {Email} not found", email);
+        return await GetAccountIdAsync(email);
+    }
 
-        return user?.Id;
+    async Task<Guid?> IAccountService.GetProfileIdAsync(string email)
+    {
+        return await GetProfileIdAsync(email);
     }
 
     private async Task<Result> AddAccountToRoleAsync(User user, ApplicationRole role)
@@ -384,5 +388,31 @@ internal class AccountService: IAccountService
 
         _logger.LogInformation("Account {Email} deleted", email);
         return Result.Success();
+    }
+
+    private async Task<string?> GetAccountIdAsync(string email)
+    {
+        User? user = await _userManager.FindByEmailAsync(email);
+        if (user is not null)
+            _logger.LogDebug("Found matching account for {Email}. Account Id: {Id}", email, user.Id);
+        else
+            _logger.LogDebug("Matching account for {Email} not found", email);
+
+        return user?.Id;
+    }
+
+    private async Task<Guid?> GetProfileIdAsync(string email)
+    {
+        string? userId = await GetAccountIdAsync(email);
+        if (userId is null)
+            return null;
+
+        UserProfile? profile = await _unitOfWork.UserProfiles.FindAsync(userId);
+        if (profile is not null)
+            _logger.LogDebug("Found matching profile for {Email}. Profile Id: {Id}", email, profile.Id);
+        else
+            _logger.LogDebug("Matching profile for {Email} not found", email);
+
+        return profile?.Id;
     }
 }

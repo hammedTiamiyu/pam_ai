@@ -22,12 +22,12 @@ public interface IAssetRepository: IRepository<Asset, Guid>
     /// <summary>
     /// Indicates if the user has multiple assets.
     /// </summary>
-    /// <param name="userId">
-    /// User ID.
+    /// <param name="profileId">
+    /// User profile ID.
     /// </param>
     /// <param name="cancellationToken">
     /// Token to cancel the operation.
     /// </param>
     /// <returns></returns>
-    Task<bool> UserHasMultipleAssetsAsync(string userId, CancellationToken cancellationToken = default);
+    Task<bool> UserHasMultipleAssetsAsync(Guid profileId, CancellationToken cancellationToken = default);
 }

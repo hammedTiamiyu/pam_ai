@@ -30,5 +30,6 @@ public record PreviewAssetResponse
         .NewConfig()
         .Map(dest => dest.PaymentPlan, src => src.PricingDetails.PaymentPlan)
         .Map(dest => dest.PanelCount, src => src.SolarSpecifications.PanelCount)
+        .Map(dest => dest.OwnerName, src => src.OwnerProfile.FullName)
         .Config;
 }

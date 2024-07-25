@@ -36,14 +36,14 @@ public class Asset: IEntity<Guid>
     public string? GenerationLoad { get; set; }
 
     /// <summary>
-    /// User ID.
+    /// Asset owner's profile ID.
     /// </summary>
-    public string OwnerId { get; set; } = string.Empty;
+    public Guid OwnerProfileId { get; set; }
 
     /// <summary>
-    /// Installer ID.
+    /// Installer profile ID.
     /// </summary>
-    public string InstallerId { get; set; } = string.Empty;
+    public Guid InstallerProfileId { get; set; }
 
     /// <summary>
     /// Asset creation date (in UTC).
@@ -74,4 +74,8 @@ public class Asset: IEntity<Guid>
     /// Battery specifications.
     /// </summary>
     public AssetBatterySpecifications BatterySpecifications { get; set; } = new();
+
+    public UserProfile OwnerProfile { get; set; } = new();
+
+    public UserProfile InstallerProfile { get; set; } = new();
 }

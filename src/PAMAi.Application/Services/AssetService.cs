@@ -43,7 +43,7 @@ internal class AssetService: IAssetService
             });
         }
 
-        var assetId = await CreateAssetAsync(asset, assetUserId, cancellationToken);
+        var assetId = await CreateAssetAsync(asset, (Guid)assetUserId, cancellationToken);
         if (assetId is null)
             return Result<Guid>.Failure(AssetErrors.UnableToCreate);
 
@@ -72,7 +72,7 @@ internal class AssetService: IAssetService
             });
         }
 
-        if (!CurrentUserIsAssetInstaller(asset.InstallerId))
+        if (!CurrentUserIsAssetInstaller(asset.InstallerProfile.UserId.ToString()))
         {
             _logger.LogError("Account {Id} attempted to delete asset {AssetId} which they didn't install",
                 _currentUser.UserId,
@@ -85,17 +85,17 @@ internal class AssetService: IAssetService
 
         _unitOfWork.Assets.Remove(asset);
         await _unitOfWork.CompleteAsync(cancellationToken);
-        bool userOwnsMultipleAssets = await UserHasMultipleAssetsAsync(asset.OwnerId, cancellationToken);
+        bool userOwnsMultipleAssets = await UserHasMultipleAssetsAsync(asset.OwnerProfileId, cancellationToken);
         if (!userOwnsMultipleAssets)
         {
-            await _accountService.DeleteAccountAsync(asset.OwnerId, cancellationToken);
+            await _accountService.DeleteAccountAsync(asset.OwnerProfile.UserId.ToString(), cancellationToken);
         }
 
         return Result.Success();
     }
 
     public async Task<Result<PagedList<PreviewAssetResponse>>> GetAsync(
-        PaginationParameters paginationParameters, 
+        PaginationParameters paginationParameters,
         CancellationToken cancellationToken = default)
     {
         if (!_currentUser.Any)
@@ -128,7 +128,7 @@ internal class AssetService: IAssetService
             });
         }
 
-        if (!CurrentUserIsAssetInstaller(asset.InstallerId))
+        if (!CurrentUserIsAssetInstaller(asset.InstallerProfile.UserId.ToString()))
         {
             _logger.LogError("Account {Id} attempted to view asset {AssetId} which they didn't install",
                 _currentUser.UserId,
@@ -136,7 +136,7 @@ internal class AssetService: IAssetService
             return Result<ReadAssetResponse>.Failure(DefaultErrors.Forbidden);
         }
 
-        Result<ReadProfileResponse> result = await _accountService.GetProfileAsync(asset.OwnerId, cancellationToken);
+        Result<ReadProfileResponse> result = await _accountService.GetProfileAsync(asset.OwnerProfile.UserId.ToString(), cancellationToken);
         ReadProfileResponse? ownerProfile = result.Data;
         ReadAssetResponse response = asset.Adapt<ReadAssetResponse>();
         response.PhoneNumber = ownerProfile?.PhoneNumber;
@@ -171,13 +171,13 @@ internal class AssetService: IAssetService
         return string.Equals(assetInstaller, _currentUser.UserId, StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task<string?> CreateAssetUserAsync(CreateAssetRequest asset, CancellationToken cancellationToken = default)
+    private async Task<Guid?> CreateAssetUserAsync(CreateAssetRequest asset, CancellationToken cancellationToken = default)
     {
         (string firstName, string lastName) = GetNames(asset.OwnerName);
-        string? userId = await _accountService.GetIdAsync(asset.Email);
+        Guid? userId = await _accountService.GetProfileIdAsync(asset.Email);
         if (userId is not null)
         {
-            _logger.LogInformation("An account already exists for {Email}. Updating user details instead", asset.Email);
+            _logger.LogInformation("An account already exists for {Email}", asset.Email);
             // TODO: Update user details instead.
             return userId;
         }
@@ -193,19 +193,21 @@ internal class AssetService: IAssetService
             PhoneNumber = asset.PhoneNumber,
             Password = asset.Password,
         };
-        Result<string> userCreationResult = await _accountService.CreateUserAsync(user);
-        _logger.LogDebug("Created asset user result for {FullName}: {@Result}",
+        Result<Guid> userCreationResult = await _accountService.CreateUserAsync(user);
+        _logger.LogDebug("Created asset user result for {FullName}. Result: {@Result}",
             $"{user.FirstName} {user.LastName}",
             userCreationResult);
 
         return userCreationResult.Data;
     }
 
-    private async Task<Guid?> CreateAssetAsync(CreateAssetRequest asset, string ownerId, CancellationToken cancellationToken = default)
+    private async Task<Guid?> CreateAssetAsync(CreateAssetRequest asset, Guid ownerId, CancellationToken cancellationToken = default)
     {
         Asset newAsset = asset.Adapt<Asset>();
-        newAsset.InstallerId = _currentUser.UserId!;
-        newAsset.OwnerId = ownerId;
+        UserProfile? installerProfile = await _unitOfWork.UserProfiles.FindAsync(_currentUser.UserId!, cancellationToken);
+        UserProfile? ownerProfile = await _unitOfWork.UserProfiles.FindAsync(ownerId, cancellationToken);
+        newAsset.InstallerProfile = installerProfile!;
+        newAsset.OwnerProfile = ownerProfile!;
         newAsset.CreatedUtc = DateTimeOffset.Now;
 
         try
@@ -253,8 +255,8 @@ internal class AssetService: IAssetService
         return tempUsername;
     }
 
-    private async Task<bool> UserHasMultipleAssetsAsync(string userId, CancellationToken cancellationToken = default)
+    private async Task<bool> UserHasMultipleAssetsAsync(Guid userProfileId, CancellationToken cancellationToken = default)
     {
-        return await _unitOfWork.Assets.UserHasMultipleAssetsAsync(userId, cancellationToken);
+        return await _unitOfWork.Assets.UserHasMultipleAssetsAsync(userProfileId, cancellationToken);
     }
 }

@@ -5,19 +5,19 @@ internal class AssetConfiguration: IEntityTypeConfiguration<Asset>
     {
         builder.ToTable("Asset", t => t.HasComment("Installer asset."));
 
-        builder.HasIndex(a => a.InstallerId);
-
-        builder.HasIndex(a => a.OwnerId);
-
         builder.HasIndex(a => a.Name);
 
         builder.HasIndex(a => a.InstallationDateUtc);
 
-        builder.Property(a => a.OwnerId)
-            .HasComment("User ID of the consumer of the asset.");
+        builder.HasOne(a => a.OwnerProfile)
+            .WithMany()
+            .HasForeignKey(a => a.OwnerProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Property(a => a.InstallerId)
-            .HasComment("User ID of the asset's installer.");
+        builder.HasOne(a => a.InstallerProfile)
+            .WithMany()
+            .HasForeignKey(a => a.InstallerProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.OwnsOne(a => a.PricingDetails, builder =>
         {

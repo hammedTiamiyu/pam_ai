@@ -46,17 +46,6 @@ public interface IAccountService
     Task<Result> CreateSuperAdminAsync(CreateSuperAdminRequest superAdmin, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Create user account.
-    /// </summary>
-    /// <param name="user">
-    /// Consumer.
-    /// </param>
-    /// <returns>
-    /// User ID.
-    /// </returns>
-    protected internal Task<Result<string>> CreateUserAsync(CreateUserRequest user);
-
-    /// <summary>
     /// Delete account.
     /// </summary>
     /// <param name="accountId">
@@ -90,6 +79,29 @@ public interface IAccountService
     Task<Result<ReadProfileResponse>> GetProfileAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Create user account.
+    /// </summary>
+    /// <param name="user">
+    /// Consumer.
+    /// </param>
+    /// <returns>
+    /// User ID.
+    /// </returns>
+    internal protected Task<Result<Guid>> CreateUserAsync(CreateUserRequest user);
+
+    /// <summary>
+    /// Delete account.
+    /// </summary>
+    /// <param name="accountProfileId">
+    /// Account profile ID.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token to cancel the operation.
+    /// </param>
+    /// <returns></returns>
+    internal protected Task<Result> DeleteAccountAsync(Guid accountProfileId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Get usernames that contain the given username in part or whole.
     /// </summary>
     /// <param name="username">
@@ -101,7 +113,7 @@ public interface IAccountService
     /// <returns>
     /// A list of matching usernames.
     /// </returns>
-    Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default);
+    internal protected Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get the ID of account matching the given email.
@@ -110,5 +122,12 @@ public interface IAccountService
     /// <returns>
     /// The account ID if there's a match, otherwise <see langword="null"/>.
     /// </returns>
-    Task<string?> GetIdAsync(string email);
+    internal protected Task<string?> GetIdAsync(string email);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    internal protected Task<Guid?> GetProfileIdAsync(string email);
 }
