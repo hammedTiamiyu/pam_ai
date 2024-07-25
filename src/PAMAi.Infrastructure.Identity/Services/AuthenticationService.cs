@@ -1,4 +1,6 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +11,7 @@ using PAMAi.Application;
 using PAMAi.Application.Dto.Authentication;
 using PAMAi.Application.Extensions;
 using PAMAi.Application.Services.Interfaces;
+using PAMAi.Application.Services.Models;
 using PAMAi.Domain.Enums;
 using PAMAi.Domain.Options;
 using PAMAi.Infrastructure.Identity.Errors;
@@ -24,7 +27,6 @@ internal sealed class AuthenticationService: IAuthenticationService
     private readonly ILogger<AuthenticationService> _logger;
     private readonly ITokenService _tokenService;
     private readonly IdentityContext _identityContext;
-    private readonly SignInManager<User> _signInManager;
     private readonly JwtOptions _jwtOptions;
 
     public AuthenticationService(
@@ -32,14 +34,12 @@ internal sealed class AuthenticationService: IAuthenticationService
         ILogger<AuthenticationService> logger,
         ITokenService tokenService,
         IdentityContext identityContext,
-        IOptionsSnapshot<JwtOptions> jwtOptionsSnapshot,
-        SignInManager<User> signInManager)
+        IOptionsSnapshot<JwtOptions> jwtOptionsSnapshot)
     {
         _userManager = userManager;
         _logger = logger;
         _tokenService = tokenService;
         _identityContext = identityContext;
-        _signInManager = signInManager;
         _jwtOptions = jwtOptionsSnapshot.Value;
     }
 
@@ -141,6 +141,58 @@ internal sealed class AuthenticationService: IAuthenticationService
         return Result.Success();
     }
 
+    public async Task<Result<RefreshTokenResponse>> RefreshTokenAsync(RefreshTokenRequest tokens, CancellationToken cancellationToken = default)
+    {
+        // First, ensure the JWT was created and signed by this application.
+        bool hasValidSignature = await _tokenService.ValidateTokenSignatureAsync(tokens.AccessToken, cancellationToken);
+        if (!hasValidSignature)
+        {
+            _logger.LogWarning("An attempt to logout was made with an invalid access token. Info: {@info}",
+                new
+                {
+                    Token = tokens.AccessToken,
+                    RefreshToken = tokens.RefreshToken,
+                });
+            return Result<RefreshTokenResponse>.Failure(AuthenticationErrors.RefreshTokenFailed with
+            {
+                Description = "Invalid access token.",
+            });
+        }
+
+        User? user = await GetUserByRefreshTokenAsync(tokens.RefreshToken);
+        if (user is null)
+        {
+            _logger.LogInformation("Logout failed. Refresh token {Token} does not match any user", tokens.RefreshToken);
+
+            return Result<RefreshTokenResponse>.Failure(AuthenticationErrors.RefreshTokenFailed with
+            {
+                Description = "Invalid refresh token.",
+            });
+        }
+
+        RefreshToken refreshToken = user.RefreshTokens
+            .First(r => r.Token == tokens.RefreshToken.ToSha512Base64UrlEncoding());
+
+        ApplicationRole role = GetRoleFromJwt(tokens.AccessToken);
+        ClaimsIdentity claimsIdentity = await GetUserClaimsIdentityAsync(user, role);
+        RefreshTokenResponse response = _tokenService.GenerateToken(claimsIdentity).Adapt<RefreshTokenResponse>();
+        var createdUtc = DateTimeOffset.UtcNow;
+
+        user.RefreshTokens.Remove(refreshToken);
+        user.RefreshTokens.Add(new()
+        {
+            Token = response.RefreshToken.ToSha512Base64UrlEncoding(),
+            CreatedUtc = createdUtc,
+            ExpiresUtc = createdUtc.AddDays(_jwtOptions.RefreshTokenValidForInDays),
+        });
+
+        _identityContext.Update(user);
+        await _identityContext.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("'{Username}' refreshed their access token successfully", user.Email);
+
+        return Result<RefreshTokenResponse>.Success(response);
+    }
+
     private static User MarkRefreshTokenAsRevoked(User user, string refreshToken)
     {
         string hashed = refreshToken.ToSha512Base64UrlEncoding();
@@ -152,12 +204,23 @@ internal sealed class AuthenticationService: IAuthenticationService
         return user;
     }
 
+    private ApplicationRole GetRoleFromJwt(string jwt)
+    {
+        JwtSecurityToken securityToken = _tokenService.GetJwtSecurityToken(jwt);
+        object role = securityToken.Payload
+            .First(claim => string.Equals(claim.Key, ClaimTypes.Role, StringComparison.OrdinalIgnoreCase))
+            .Value;
+        _logger.LogTrace("Current role as seen in JWT: {Role}", role);
+
+        return Enum.Parse<ApplicationRole>(role?.ToString() ?? string.Empty);
+    }
+
     private async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
     {
         string hashed = refreshToken.ToSha512Base64UrlEncoding();
 
         User? user = await _identityContext.Users
-            .Where(u => u.RefreshTokens.Any(r => r.Token.ToUpper() == hashed.ToUpper()))
+            .Where(u => u.RefreshTokens.Any(r => EF.Functions.Like(r.Token, hashed)))
             .Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync();
 

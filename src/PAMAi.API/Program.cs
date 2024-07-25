@@ -1,4 +1,5 @@
 using PAMAi.API.ExceptionHandlers;
+using PAMAi.API.Middlewares;
 using PAMAi.API.Swagger;
 using PAMAi.Application.Extensions;
 using PAMAi.Infrastructure.ExternalServices.Extensions;
@@ -53,6 +54,7 @@ void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddIdentityInfrastructure(builder.Configuration);
     builder.Services.AddExternalServicesInfrastructure(builder.Configuration);
     builder.Services.AddStorageInfrastructure(builder.Configuration);
+    builder.Services.AddScoped<JwtSessionMiddleware>();
     builder.Services.AddSerilog((services, loggerConfig) =>
     {
         loggerConfig.ReadFrom.Configuration(builder.Configuration);
@@ -80,6 +82,7 @@ async Task ConfigureAndRunAppAsync(WebApplicationBuilder builder)
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseMiddleware<JwtSessionMiddleware>();
     app.MapControllers();
 
     await seedIdentityDbTask;
