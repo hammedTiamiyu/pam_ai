@@ -23,20 +23,6 @@ public class AssetsController: BaseController
     }
 
     /// <summary>
-    /// Create asset
-    /// </summary>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateAsync(CreateAssetRequest asset, CancellationToken cancellationToken)
-    {
-        var result = await _assetService.CreateAsync(asset, cancellationToken);
-
-        return result.Match(
-            onSuccess: data => CreatedAtRoute("GetAssetById", new { id = result.Data }, null),
-            onFailure: ErrorResult);
-    }
-
-    /// <summary>
     /// Get assets
     /// </summary>
     [HttpGet]
@@ -51,11 +37,26 @@ public class AssetsController: BaseController
     }
 
     /// <summary>
+    /// Create asset
+    /// </summary>
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateAsync(CreateAssetRequest asset, CancellationToken cancellationToken)
+    {
+        var result = await _assetService.CreateAsync(asset, cancellationToken);
+
+        return result.Match(
+            onSuccess: data => CreatedAtRoute("GetAssetById", new { id = result.Data }, null),
+            onFailure: ErrorResult);
+    }
+
+    /// <summary>
     /// Get an asset by its ID
     /// </summary>
     /// <param name="id">Asset ID</param>
     [HttpGet("{id:guid}", Name = "GetAssetById")]
     [ProducesResponseType(typeof(ReadAssetResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var result = await _assetService.GetByIdAsync(id, cancellationToken);
@@ -71,6 +72,7 @@ public class AssetsController: BaseController
     /// <param name="id">Asset ID</param>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ReadAssetResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateAsync(Guid id, UpdateAssetRequest asset, CancellationToken cancellationToken)
     {
         var result = await _assetService.UpdateAsync(id, asset, cancellationToken);
@@ -86,9 +88,26 @@ public class AssetsController: BaseController
     /// <param name="id">Asset ID</param>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var result = await _assetService.DeleteAsync(id, cancellationToken);
+
+        return result.Match(
+            onSuccess: NoContent,
+            onFailure: ErrorResult);
+    }
+
+    /// <summary>
+    /// Send user's details to asset user
+    /// </summary>
+    /// <param name="id">Asset ID</param>
+    [HttpPost("{id:guid}/user/send-details")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SendAccountDetailsToAssetUserAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _assetService.SendAccountDetailsToAssetUserAsync(id, cancellationToken);
 
         return result.Match(
             onSuccess: NoContent,

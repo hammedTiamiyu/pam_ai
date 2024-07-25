@@ -64,6 +64,18 @@ public interface IAssetService
     Task<Result<ReadAssetResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Send account details to asset user.
+    /// </summary>
+    /// <param name="assetId">Asset ID.</param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns>
+    /// The result of the operation.
+    /// </returns>
+    Task<Result> SendAccountDetailsToAssetUserAsync(Guid assetId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Update asset.
     /// </summary>
     /// <param name="id">
