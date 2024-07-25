@@ -87,7 +87,7 @@ public interface IAccountService
     /// <returns>
     /// User ID.
     /// </returns>
-    internal protected Task<Result<Guid>> CreateUserAsync(CreateUserRequest user);
+    protected internal Task<Result<Guid>> CreateUserAsync(CreateUserRequest user);
 
     /// <summary>
     /// Delete account.
@@ -99,7 +99,7 @@ public interface IAccountService
     /// Token to cancel the operation.
     /// </param>
     /// <returns></returns>
-    internal protected Task<Result> DeleteAccountAsync(Guid accountProfileId, CancellationToken cancellationToken = default);
+    protected internal Task<Result> DeleteAccountAsync(Guid accountProfileId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get usernames that contain the given username in part or whole.
@@ -113,7 +113,7 @@ public interface IAccountService
     /// <returns>
     /// A list of matching usernames.
     /// </returns>
-    internal protected Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default);
+    protected internal Task<List<string>> GetSimilarUsernamesAsync(string username, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get the ID of account matching the given email.
@@ -122,12 +122,12 @@ public interface IAccountService
     /// <returns>
     /// The account ID if there's a match, otherwise <see langword="null"/>.
     /// </returns>
-    internal protected Task<string?> GetIdAsync(string email);
+    protected internal Task<string?> GetIdAsync(string email);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="email"></param>
     /// <returns></returns>
-    internal protected Task<Guid?> GetProfileIdAsync(string email);
+    protected internal Task<Guid?> GetProfileIdAsync(string email);
 }

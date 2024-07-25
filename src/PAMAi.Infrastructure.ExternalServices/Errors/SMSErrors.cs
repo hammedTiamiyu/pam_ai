@@ -1,9 +1,4 @@
 ﻿using PAMAi.Application;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 internal class SMSErrors

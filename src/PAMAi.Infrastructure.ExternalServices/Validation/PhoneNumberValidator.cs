@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PAMAi.Infrastructure.ExternalServices.Validation;
+﻿namespace PAMAi.Infrastructure.ExternalServices.Validation;
 public static class PhoneNumberValidator
 {
     public static bool IsValid(string phoneNumber)

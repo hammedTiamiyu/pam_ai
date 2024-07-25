@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PAMAi.Application.Dto.Account;
+﻿using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Dto.FcmPushNotifications;
 using PAMAi.Application.Dto.SMS;
 using PAMAi.Infrastructure.ExternalServices.Services;
@@ -9,13 +8,13 @@ namespace PAMAi.API.Controllers;
 /// <summary>
 /// Notifications for SMS and email
 /// </summary>
-public class NotificationsController : BaseController
+public class NotificationsController: BaseController
 {
     private readonly NotificationService _notificationService;
     private readonly IActionResult _genericFailedLoginResponse;
 
-    public NotificationsController(NotificationService notificationService, 
-        IHttpContextAccessor httpContextAccessor) : base (httpContextAccessor)
+    public NotificationsController(NotificationService notificationService,
+        IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
         _notificationService = notificationService;
     }

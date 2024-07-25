@@ -30,7 +30,7 @@ public class AssetsController: BaseController
     public async Task<IActionResult> CreateAsync(CreateAssetRequest asset, CancellationToken cancellationToken)
     {
         var result = await _assetService.CreateAsync(asset, cancellationToken);
-        
+
         return result.Match(
             onSuccess: data => CreatedAtRoute("GetAssetById", new { id = result.Data }, null),
             onFailure: ErrorResult);

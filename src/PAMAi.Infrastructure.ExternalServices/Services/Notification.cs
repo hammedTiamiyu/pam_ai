@@ -1,20 +1,14 @@
-﻿using PAMAi.Application.Dto.SMS;
-using PAMAi.Application.Services.Interfaces;
-using PAMAi.Application;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using PAMAi.Domain.Options;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PAMAi.Infrastructure.ExternalServices.Services.SMS;
 using PAM_Ai.ExternalServices.Services.FcmNotifications;
+using PAMAi.Application;
+using PAMAi.Application.Dto.SMS;
+using PAMAi.Application.Services.Interfaces;
+using PAMAi.Domain.Options;
 
 namespace PAMAi.Infrastructure.ExternalServices.Services;
 
-public class NotificationService : INotificationService
+public class NotificationService: INotificationService
 {
     private readonly ISmsRepository _smsRepository;
     private readonly TermiiOptions _settings;
@@ -27,7 +21,7 @@ public class NotificationService : INotificationService
         _smsRepository = smsRepository;
         _logger = logger;
         _settings = settings.Value;
-       // _fcmService = fcmService;
+        // _fcmService = fcmService;
 
     }
 

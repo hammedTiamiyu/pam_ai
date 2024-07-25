@@ -5,7 +5,7 @@ internal sealed class UserProfileConfiguration: IEntityTypeConfiguration<UserPro
     {
         builder.ToTable(name: "UserProfile", t => t.HasComment("Profiles for users."));
 
-        builder.HasIndex(u => new {u.FirstName, u.LastName}, "IX_UserProfile_Name");
+        builder.HasIndex(u => new { u.FirstName, u.LastName }, "IX_UserProfile_Name");
 
         builder.Ignore(u => u.FullName);
 

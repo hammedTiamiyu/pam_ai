@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using PAMAi.Application.Dto;
 using PAMAi.Application.Dto.Parameters;
 using PAMAi.Application.Storage;
-using PAMAi.Domain.Entities.Base;
 using PAMAi.Infrastructure.Storage.Contexts;
 using PAMAi.Infrastructure.Storage.Repositories.Base;
 

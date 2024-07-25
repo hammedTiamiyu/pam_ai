@@ -5,7 +5,7 @@
 namespace PAMAi.Infrastructure.Identity.Migrations
 {
     /// <inheritdoc />
-    public partial class Name_Removed_From_User : Migration
+    public partial class Name_Removed_From_User: Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

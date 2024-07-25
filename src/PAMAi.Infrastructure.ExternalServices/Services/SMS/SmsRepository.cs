@@ -1,24 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Application;
 using PAMAi.Application.Dto.SMS;
 using PAMAi.Application.Services.Interfaces;
 using PAMAi.Domain.Options;
-using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Infrastructure.ExternalServices.Validation;
-using Microsoft.Extensions.Configuration;
+using RestSharp;
 
 namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
 {
-    public class SmsRepository : ISmsRepository
+    public class SmsRepository: ISmsRepository
     {
         private readonly string _baseUrl;
         private readonly string _apiKey;
@@ -91,13 +85,13 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Exception: { ex.Message}");
+                _logger.LogError($"Exception: {ex.Message}");
                 return Result<SmsResponse>.Failure(SMSErrors.SMSException with
                 {
                     Description = "SMSException from Termii",
                 });
             }
         }
-    
+
     }
 }

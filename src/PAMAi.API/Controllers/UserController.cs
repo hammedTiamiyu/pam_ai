@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using PAMAi.Application.Dto.Account;
+﻿using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Services.Interfaces;
 
 namespace PAMAi.API.Controllers;
