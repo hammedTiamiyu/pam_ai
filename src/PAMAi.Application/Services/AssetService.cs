@@ -184,6 +184,11 @@ internal class AssetService: IAssetService
         return Result<ReadAssetResponse>.Success(response);
     }
 
+    public Task<Result> SendAccountDetailsToAssetUserAsync(Guid assetId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
     private static string CreateUsernameFromName(string firstName, string lastName)
     {
         firstName = firstName.Replace(" ", "");
@@ -215,7 +220,6 @@ internal class AssetService: IAssetService
         if (userId is not null)
         {
             _logger.LogInformation("An account already exists for {Email}", asset.Email);
-            // TODO: Update user details instead.
             return userId;
         }
 

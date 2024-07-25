@@ -4,7 +4,7 @@ using PAMAi.Application.Services.Interfaces;
 namespace PAMAi.API.Controllers;
 
 /// <summary>
-/// View and edit users profiles
+/// Account management
 /// </summary>
 [ApiController]
 [ApiVersion(1.0)]

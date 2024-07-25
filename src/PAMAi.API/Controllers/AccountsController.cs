@@ -110,4 +110,19 @@ public sealed class AccountsController: BaseController
             onSuccess: NoContent,
             onFailure: ErrorResult);
     }
+
+    /// <summary>
+    /// Refresh access token
+    /// </summary>
+    /// <param name="tokens">Tokens</param>
+    [HttpPost("refresh-token")]
+    [ProducesResponseType(typeof(RefreshTokenResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RefreshTokenAsync(RefreshTokenRequest tokens, CancellationToken cancellationToken)
+    {
+        var result = await _authenticationService.RefreshTokenAsync(tokens, cancellationToken);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: ErrorResult);
+    }
 }

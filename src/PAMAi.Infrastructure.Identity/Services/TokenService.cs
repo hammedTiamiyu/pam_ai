@@ -88,12 +88,19 @@ internal class TokenService: ITokenService
         var validationParameters = Constants.Jwt.GetApplicationTokenValidationParameters(
             _jwtOptions.Issuer,
             _jwtOptions.Audience);
+        // Don't validate the expiration of the token.
+        validationParameters.ValidateLifetime = false;
 
         var tokenHandler = new JwtSecurityTokenHandler();
         TokenValidationResult result = await tokenHandler.ValidateTokenAsync(jwt, validationParameters);
         _logger.LogTrace("JWT signature is valid: {IsValid}. Error message: '{message}'", result.IsValid, result.Exception?.Message);
 
         return result.IsValid;
+    }
+
+    public JwtSecurityToken GetJwtSecurityToken(string jwt)
+    {
+        return new JwtSecurityToken(jwt);
     }
 
     private string GenerateRefreshTokenString()

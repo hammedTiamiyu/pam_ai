@@ -32,4 +32,15 @@ public interface IAuthenticationService
     /// </param>
     /// <returns></returns>
     Task<Result> LogoutAsync(string accessToken, string refreshToken);
+
+    /// <summary>
+    /// Refresh access token.
+    /// </summary>
+    /// <param name="tokens">Access and refresh tokens.</param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns></returns>
+    Task<Result<RefreshTokenResponse>> RefreshTokenAsync(RefreshTokenRequest tokens, CancellationToken cancellationToken = default);
+
 }

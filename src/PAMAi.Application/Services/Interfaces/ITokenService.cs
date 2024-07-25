@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using PAMAi.Application.Services.Models;
 
 namespace PAMAi.Application.Services.Interfaces;
@@ -24,6 +25,13 @@ public interface ITokenService
     /// </param>
     /// <returns>The newly-generated tokens.</returns>
     Tokens GenerateToken(ClaimsIdentity claimsIdentity);
+
+    /// <summary>
+    /// Deserialise the encoded JWT string.
+    /// </summary>
+    /// <param name="jwt">JWT string.</param>
+    /// <returns></returns>
+    JwtSecurityToken GetJwtSecurityToken(string jwt);
 
     /// <summary>
     /// Checks if the given token is blacklisted.
