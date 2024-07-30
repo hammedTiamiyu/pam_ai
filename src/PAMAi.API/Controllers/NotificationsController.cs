@@ -2,6 +2,7 @@
 using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Dto.FcmPushNotifications;
 using PAMAi.Application.Dto.SMS;
+using PAMAi.Application.Services.Interfaces;
 using PAMAi.Infrastructure.ExternalServices.Services;
 
 namespace PAMAi.API.Controllers;
@@ -11,10 +12,10 @@ namespace PAMAi.API.Controllers;
 /// </summary>
 public class NotificationsController : BaseController
 {
-    private readonly NotificationService _notificationService;
+    private readonly INotificationService _notificationService;
     private readonly IActionResult _genericFailedLoginResponse;
 
-    public NotificationsController(NotificationService notificationService, 
+    public NotificationsController(INotificationService notificationService, 
         IHttpContextAccessor httpContextAccessor) : base (httpContextAccessor)
     {
         _notificationService = notificationService;
@@ -40,12 +41,14 @@ public class NotificationsController : BaseController
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("test-sms")]
+    [HttpGet("test-sms")]
     [ProducesResponseType(typeof(SmsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> TestSmsNotification([FromBody] SmsRequest request)
+    //public async Task<IActionResult> TestSmsNotification([FromBody] SmsRequest request)
+    public async Task<IActionResult> TestSmsNotification()
     {
-        var result = await _notificationService.TestSMSAsync(request.To, request.Sms);
+        //var result = await _notificationService.TestSMSAsync(request.To, request.Sms);
+        var result = await _notificationService.TestSMSAsync("2347032519605", "TEST SMS");
         //return result.IsSuccess ? Ok(result) : BadRequest(result.Error);
         return result.Match(
             onSuccess: () => Ok(result),

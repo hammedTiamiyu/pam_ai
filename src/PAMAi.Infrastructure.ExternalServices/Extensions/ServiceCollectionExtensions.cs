@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PAM_Ai.ExternalServices.Services.FcmNotifications;
 using PAMAi.Application.Exceptions;
 using PAMAi.Application.Services.Interfaces;
@@ -45,14 +46,14 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection AddSmsSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<TermiiOptions>(configuration.GetSection("TermiiSettings"));
-        services.AddSingleton<SmsRepository>(provider =>
+        services.AddSingleton<ISmsRepository, SmsRepository>(provider =>
         {
             var logger = provider.GetRequiredService<ILogger<SmsRepository>>();
-            return new SmsRepository(configuration, logger);
+            var options = provider.GetRequiredService<IOptions<TermiiOptions>>();
+            return new SmsRepository(configuration, logger, options);
         });
         return services;
     }
-
     private static IServiceCollection AddFcmSettings(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<FcmService>(provider =>
