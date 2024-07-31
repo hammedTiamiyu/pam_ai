@@ -20,18 +20,12 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
         private readonly ILogger<SmsRepository> _logger;
         private IConfiguration _configuration;
 
-        public SmsRepository(IConfiguration configuration, ILogger<SmsRepository> logger)
+        public SmsRepository(IConfiguration configuration, ILogger<SmsRepository> logger, IOptions<TermiiOptions> settings)
         {
-            _configuration = configuration;
-            _logger = logger;
-        }
 
-        public SmsRepository(string baseurl, string apikey, ILogger<SmsRepository> logger, IOptions<TermiiOptions> settings)
-        {
-            this._baseUrl = baseurl;
-            _apiKey = apikey;
             _logger = logger;
             _settings = settings.Value;
+            _configuration = configuration;
 
         }
 
@@ -45,6 +39,7 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
                 });
             }
 
+            
             var client = new RestClient(_settings.BaseUrl);
             var request = new RestRequest("api/sms/send", Method.Post);
             request.AddHeader("Content-Type", "application/json");
@@ -72,6 +67,7 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
                 if (response.IsSuccessful)
                 {
                     var smsResponse = JsonConvert.DeserializeObject<SmsResponse>(response.Content);
+                    _logger.LogError("Successsfully Sent SMS to '{ phonenumber }'", message.To);
                     return Result<SmsResponse>.Success(smsResponse);
                 }
                 else

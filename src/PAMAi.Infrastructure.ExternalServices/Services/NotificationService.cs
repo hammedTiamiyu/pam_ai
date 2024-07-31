@@ -16,12 +16,12 @@ public class NotificationService: INotificationService
     private readonly FcmService _fcmService;
 
     public NotificationService(ISmsRepository smsRepository, ILogger<NotificationService> logger,
-        IOptions<TermiiOptions> settings) //, FcmService fcmService)
+        IOptions<TermiiOptions> settings, FcmService fcmService)
     {
         _smsRepository = smsRepository;
         _logger = logger;
         _settings = settings.Value;
-        // _fcmService = fcmService;
+        _fcmService = fcmService;
 
     }
 
