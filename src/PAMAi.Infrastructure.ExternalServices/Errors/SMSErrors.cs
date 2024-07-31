@@ -1,6 +1,7 @@
-﻿using PAMAi.Application;
+﻿using Microsoft.AspNetCore.Http;
+using PAMAi.Application;
 
-namespace PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
+namespace PAMAi.Infrastructure.ExternalServices.Errors;
 internal class SMSErrors
 {
     /// <summary>
@@ -8,5 +9,5 @@ internal class SMSErrors
     /// </summary>
     public static readonly Error SMSFailure = new("Failed to send SMS");
     public static readonly Error SMSException = new("Failed to send SMS");
-    public static readonly Error PhoneNumberValidation = new("Invalid phone number format.");
+    public static readonly Error PhoneNumberValidation = new("Invalid phone number format.", StatusCodes.Status400BadRequest);
 }

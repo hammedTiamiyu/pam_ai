@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IAssetService, AssetService>();
         services.AddScoped<ICountryService, CountryService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }

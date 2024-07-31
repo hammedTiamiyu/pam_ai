@@ -2,7 +2,6 @@
 using PAMAi.Application.Dto.FcmPushNotifications;
 using PAMAi.Application.Dto.SMS;
 using PAMAi.Application.Services.Interfaces;
-using PAMAi.Infrastructure.ExternalServices.Services;
 
 namespace PAMAi.API.Controllers;
 
@@ -12,7 +11,6 @@ namespace PAMAi.API.Controllers;
 public class NotificationsController: BaseController
 {
     private readonly INotificationService _notificationService;
-    private readonly IActionResult _genericFailedLoginResponse;
 
     public NotificationsController(INotificationService notificationService, 
         IHttpContextAccessor httpContextAccessor) : base (httpContextAccessor)
