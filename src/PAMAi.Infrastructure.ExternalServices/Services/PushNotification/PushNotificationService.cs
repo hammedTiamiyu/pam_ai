@@ -4,20 +4,22 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PAMAi.Application;
+using PAMAi.Application.Services.Interfaces;
+using PAMAi.Application.Services.Models;
 using PAMAi.Infrastructure.ExternalServices.Errors;
 
-namespace PAM_Ai.ExternalServices.Services.FcmNotifications;
-public class FcmService
+namespace PAMAi.Infrastructure.ExternalServices.Services.PushNotification;
+
+internal sealed class PushNotificationService: IPushNotificationService
 {
     private readonly FirebaseApp _firebaseApp;
-    private readonly ILogger<FcmService> _logger;
-    private IConfiguration _configuration;
+    private readonly ILogger<PushNotificationService> _logger;
 
-    public FcmService(ILogger<FcmService> logger, IConfiguration configuration)
+    public PushNotificationService(IConfiguration configuration, ILogger<PushNotificationService> logger)
     {
-        var credentialsPath = configuration["Firebase:CredentialsPath"];
         _logger = logger;
 
+        var credentialsPath = configuration["Firebase:CredentialsPath"];
         _firebaseApp = FirebaseApp.Create(new AppOptions
         {
             Credential = GoogleCredential.FromFile(credentialsPath)
@@ -26,13 +28,13 @@ public class FcmService
         _logger.LogInformation("Firebase App initialized with credentials from {path}", credentialsPath);
     }
 
-    public FcmService(IConfiguration configuration, ILogger<FcmService> logger)
+    public async Task<Result> SendAsync(NotificationContents.PushContent content, string deviceToken, CancellationToken cancellationToken = default)
     {
-        _configuration = configuration;
-        _logger = logger;
+        var result = await SendAsync(content.Title, content.Body, deviceToken, cancellationToken);
+        return Result.From(result);
     }
 
-    public async Task<Result<string>> SendNotificationAsync(string title, string body, string token)
+    public async Task<Result<string>> SendAsync(string title, string body, string token, CancellationToken cancellationToken = default)
     {
         var message = new Message
         {
@@ -46,13 +48,13 @@ public class FcmService
 
         try
         {
-            string response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+            string response = await FirebaseMessaging.DefaultInstance.SendAsync(message, cancellationToken);
             _logger.LogInformation("Notification sent successfully: {response}", response);
             return Result<string>.Success(response);
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Exception: {ex.Message}");
+            _logger.LogError(ex, "Could not send push notification. Message: {Message}", ex.Message);
             return Result<string>.Failure(FcmErrors.FcmException with
             {
                 Description = "Failed to Notifications",

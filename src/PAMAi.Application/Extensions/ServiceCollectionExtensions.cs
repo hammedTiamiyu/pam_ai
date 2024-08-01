@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddServices();
         services.ConfigureOptions(configuration);
-        services.AddValidatorsFromAssemblyContaining<Result>();
+        services.AddValidatorsFromAssemblyContaining<Result>(includeInternalTypes: true);
 
         return services;
     }
@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IAssetService, AssetService>();
         services.AddScoped<ICountryService, CountryService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }

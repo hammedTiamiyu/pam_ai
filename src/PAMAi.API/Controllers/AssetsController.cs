@@ -99,15 +99,15 @@ public class AssetsController: BaseController
     }
 
     /// <summary>
-    /// Send user's details to asset user
+    /// Invite the asset's user to PAMAi
     /// </summary>
     /// <param name="id">Asset ID</param>
-    [HttpPost("{id:guid}/user/send-details")]
+    [HttpPost("{id:guid}/user/invite")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> SendAccountDetailsToAssetUserAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> InviteAssetUserAsync(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _assetService.SendAccountDetailsToAssetUserAsync(id, cancellationToken);
+        var result = await _assetService.InviteAssetUserAsync(id, cancellationToken);
 
         return result.Match(
             onSuccess: NoContent,

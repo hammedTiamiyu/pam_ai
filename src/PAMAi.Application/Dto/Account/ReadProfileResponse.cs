@@ -37,7 +37,7 @@ public record ReadProfileResponse
     public string? City { get; set; }
 
     /// <example>299</example>
-    public int? StateId { get; set; }
+    public long? StateId { get; set; }
 
     /// <example>Calabar</example>
     public string? State { get; set; }

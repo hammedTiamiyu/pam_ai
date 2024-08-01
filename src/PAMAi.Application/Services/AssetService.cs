@@ -4,7 +4,9 @@ using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Dto.Asset;
 using PAMAi.Application.Dto.Parameters;
 using PAMAi.Application.Errors;
+using PAMAi.Application.Resources;
 using PAMAi.Application.Services.Interfaces;
+using PAMAi.Application.Services.Models;
 using PAMAi.Application.Storage;
 using PAMAi.Domain.Entities;
 
@@ -15,13 +17,20 @@ internal class AssetService: IAssetService
     private readonly IAccountService _accountService;
     private readonly ICurrentUser _currentUser;
     private readonly ILogger<AssetService> _logger;
+    private readonly INotificationService _notificationService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AssetService(IAccountService accountService, ICurrentUser currentUser, ILogger<AssetService> logger, IUnitOfWork unitOfWork)
+    public AssetService(
+        IAccountService accountService,
+        ICurrentUser currentUser,
+        ILogger<AssetService> logger,
+        INotificationService notificationService,
+        IUnitOfWork unitOfWork)
     {
         _accountService = accountService;
         _currentUser = currentUser;
         _logger = logger;
+        _notificationService = notificationService;
         _unitOfWork = unitOfWork;
     }
 
@@ -152,7 +161,7 @@ internal class AssetService: IAssetService
     {
         if (!_currentUser.Any)
         {
-            _logger.LogError("Cannot view asset. There is no authenticated user");
+            _logger.LogError("Cannot update asset. There is no authenticated user");
             return Result<ReadAssetResponse>.Failure(DefaultErrors.Unauthorised);
         }
 
@@ -168,7 +177,7 @@ internal class AssetService: IAssetService
 
         if (!CurrentUserIsAssetInstaller(asset.InstallerProfile.UserId.ToString()))
         {
-            _logger.LogError("Account {Id} attempted to view asset {AssetId} which they didn't install",
+            _logger.LogError("Account {Id} attempted to update asset {AssetId} which they didn't install",
                 _currentUser.UserId,
                 id);
             return Result<ReadAssetResponse>.Failure(DefaultErrors.Forbidden);
@@ -184,9 +193,47 @@ internal class AssetService: IAssetService
         return Result<ReadAssetResponse>.Success(response);
     }
 
-    public Task<Result> SendAccountDetailsToAssetUserAsync(Guid assetId, CancellationToken cancellationToken = default)
+    public async Task<Result> InviteAssetUserAsync(Guid assetId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if (!_currentUser.Any)
+        {
+            _logger.LogError("Cannot invite user. There is no authenticated user");
+            return Result<ReadAssetResponse>.Failure(DefaultErrors.Unauthorised);
+        }
+
+        Asset? asset = await _unitOfWork.Assets.FindAsync(assetId, cancellationToken);
+        if (asset is null)
+        {
+            _logger.LogError("Asset {Id} not found", assetId);
+            return Result<ReadAssetResponse>.Failure(DefaultErrors.NotFound with
+            {
+                Description = $"Asset {assetId} not found.",
+            });
+        }
+
+        if (!CurrentUserIsAssetInstaller(asset.InstallerProfile.UserId.ToString()))
+        {
+            _logger.LogError("Account {Id} attempted to invite user of asset {AssetId}, which they didn't install",
+                _currentUser.UserId,
+                assetId);
+            return Result<ReadAssetResponse>.Failure(DefaultErrors.Forbidden);
+        }
+
+        UserCredentials? credentials = await _accountService.GetUserCredentialsAsync(asset.OwnerProfile.UserId.ToString(), cancellationToken);
+        if (credentials is null)
+        {
+            _logger.LogError("Cannot invite user. Credentials not found");
+            return Result.Failure(AssetErrors.InviteUserFailed);
+        }
+
+        Result result = await SendInviteNotificationToUserAsync(
+            asset.OwnerProfile.UserId.ToString(),
+            credentials,
+            cancellationToken);
+
+        return result.IsSuccess
+            ? result
+            : Result.Failure(AssetErrors.InviteUserFailed with { InnerError = result.Error });
     }
 
     private static string CreateUsernameFromName(string firstName, string lastName)
@@ -216,11 +263,14 @@ internal class AssetService: IAssetService
     private async Task<Guid?> CreateAssetUserAsync(CreateAssetRequest asset, CancellationToken cancellationToken = default)
     {
         (string firstName, string lastName) = GetNames(asset.OwnerName);
-        Guid? userId = await _accountService.GetProfileIdAsync(asset.Email);
-        if (userId is not null)
+        Guid? userProfileId = await _accountService.GetProfileIdAsync(asset.Email);
+        if (userProfileId is not null)
         {
-            _logger.LogInformation("An account already exists for {Email}", asset.Email);
-            return userId;
+            _logger.LogInformation("An account already exists for {Email}. Adding them to user role", asset.Email);
+            string? userId = await _accountService.GetIdAsync(asset.Email);
+            await _accountService.AddAccountToRoleAsync(userId!, Domain.Enums.ApplicationRole.User);
+
+            return userProfileId;
         }
 
         string username = CreateUsernameFromName(firstName, lastName);
@@ -294,6 +344,20 @@ internal class AssetService: IAssetService
             tempUsername);
 
         return tempUsername;
+    }
+
+    private async Task<Result> SendInviteNotificationToUserAsync(string userId, UserCredentials userCredentials, CancellationToken cancellationToken = default)
+    {
+        NotificationContents notificationContents = new()
+        {
+            RecipientUserId = userId,
+            Sms = new NotificationContents.SmsContent()
+            {
+                Message = string.Format(SmsMessages.InviteAssetUser, userCredentials.Email, userCredentials.Password),
+            }
+        };
+
+        return await _notificationService.SendAsync(notificationContents, Domain.Enums.NotificationChannels.Sms, cancellationToken);
     }
 
     private async Task<bool> UserHasMultipleAssetsAsync(Guid userProfileId, CancellationToken cancellationToken = default)

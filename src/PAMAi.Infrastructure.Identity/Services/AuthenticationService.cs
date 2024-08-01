@@ -1,5 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +11,6 @@ using PAMAi.Application;
 using PAMAi.Application.Dto.Authentication;
 using PAMAi.Application.Extensions;
 using PAMAi.Application.Services.Interfaces;
-using PAMAi.Application.Services.Models;
 using PAMAi.Domain.Enums;
 using PAMAi.Domain.Options;
 using PAMAi.Infrastructure.Identity.Errors;
@@ -50,9 +49,10 @@ internal sealed class AuthenticationService: IAuthenticationService
     {
         _logger.LogInformation("'{Username}' is attempting to log in as a {Role}", credentials.Username, loginAsRole);
 
-        User? user = await _userManager.FindByEmailAsync(credentials.Username);
-        // Try to find user by username if there was no email match.
-        user ??= await _userManager.FindByNameAsync(credentials.Username);
+        User? user = await _identityContext.Users
+            .Where(FilterByUniqueId(credentials.Username))
+            .Include(u => u.UserPassword)
+            .FirstOrDefaultAsync(cancellationToken);
 
         // If user is null despite the search using their username and email.
         if (user is null)
@@ -85,6 +85,7 @@ internal sealed class AuthenticationService: IAuthenticationService
             });
         }
 
+        await InsertUserPasswordIfNotExistAsync(user, credentials.Password);
         ClaimsIdentity claimsIdentity = await GetUserClaimsIdentityAsync(user, loginAsRole);
         LoginResponse response = _tokenService.GenerateToken(claimsIdentity).Adapt<LoginResponse>();
         var createdUtc = DateTimeOffset.UtcNow;
@@ -204,6 +205,21 @@ internal sealed class AuthenticationService: IAuthenticationService
         return user;
     }
 
+    /// <summary>
+    /// Filter users by their email, username or phone number.
+    /// </summary>
+    /// <param name="uniqueField">
+    /// Email, username or phone number.
+    /// </param>
+    /// <returns></returns>
+    private static Expression<Func<User, bool>> FilterByUniqueId(string uniqueField)
+    {
+        return user =>
+            user.Email == uniqueField ||
+            user.UserName == uniqueField ||
+            user.PhoneNumber == uniqueField;
+    }
+
     private ApplicationRole GetRoleFromJwt(string jwt)
     {
         JwtSecurityToken securityToken = _tokenService.GetJwtSecurityToken(jwt);
@@ -239,5 +255,33 @@ internal sealed class AuthenticationService: IAuthenticationService
         }.Union(userClaims);
 
         return new ClaimsIdentity(claims, JwtBearerDefaults.AuthenticationScheme);
+    }
+
+    /// <summary>
+    /// Insert a <see cref="UserPassword"/> record for the existing user
+    /// if they don't currently have one.
+    /// </summary>
+    /// <param name="user">
+    /// User account.
+    /// </param>
+    /// <param name="password">
+    /// User password.
+    /// </param>
+    /// <returns></returns>
+    private async Task InsertUserPasswordIfNotExistAsync(User user, string password)
+    {
+        if (user.UserPassword is not null)
+        {
+            _logger.LogTrace("{Name} exists for user {Id}", nameof(UserPassword), user.Id);
+            return;
+        }
+
+        user.UserPassword = new UserPassword
+        {
+            Password = Cryptography.Encrypt(password),
+        };
+        _identityContext.Users.Update(user);
+        await _identityContext.SaveChangesAsync();
+        _logger.LogTrace("{Name} inserted for user {Id}", nameof(UserPassword), user.Id);
     }
 }

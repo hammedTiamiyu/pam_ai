@@ -1,4 +1,5 @@
 ﻿using PAMAi.Application.Dto.Account;
+using PAMAi.Application.Services.Models;
 using PAMAi.Domain.Enums;
 
 namespace PAMAi.Application.Services.Interfaces;
@@ -19,6 +20,20 @@ public interface IAccountService
     /// </param>
     /// <returns></returns>
     Task<Result> AddAccountToRoleAsync(string userId, ApplicationRole role);
+
+    /// <summary>
+    /// Change password of the current logged-in user.
+    /// </summary>
+    /// <param name="credentials">
+    /// New and old passwords.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns>
+    /// The result of the operation.
+    /// </returns>
+    Task<Result> ChangePasswordAsync(ChangePasswordRequest credentials, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Create installer account.
@@ -79,6 +94,20 @@ public interface IAccountService
     Task<Result<ReadProfileResponse>> GetProfileAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Update logged-in user's profile.
+    /// </summary>
+    /// <param name="profile">
+    /// Updated profile.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns>
+    /// The updated user's profile information.
+    /// </returns>
+    Task<Result<ReadProfileResponse>> UpdateProfileAsync(UpdateProfileRequest profile, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Create user account.
     /// </summary>
     /// <param name="user">
@@ -130,4 +159,16 @@ public interface IAccountService
     /// <param name="email"></param>
     /// <returns></returns>
     protected internal Task<Guid?> GetProfileIdAsync(string email);
+
+    /// <summary>
+    /// Get user's credentials.
+    /// </summary>
+    /// <param name="userId">
+    /// User ID.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns></returns>
+    protected internal Task<UserCredentials?> GetUserCredentialsAsync(string userId, CancellationToken cancellationToken = default);
 }

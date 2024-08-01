@@ -105,4 +105,17 @@ public record Result
     /// <param name="error">Error from the operation.</param>
     /// <returns>An unsuccessful <see cref="Result"/>.</returns>
     public static Result Failure(Error error) => new(false, error);
+
+    /// <summary>
+    /// Creates a <see cref="Result"/> from a <see cref="Result{T}"/>.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="result"></param>
+    /// <returns>
+    /// A <see cref="Result"/> indicating success if <paramref name="result"/> was successful.
+    /// </returns>
+    public static Result From<T>(Result<T> result)
+    {
+        return result.IsSuccess ? Success() : Failure(result.Error);
+    }
 }
