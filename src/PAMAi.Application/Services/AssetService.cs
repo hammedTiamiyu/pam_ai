@@ -263,11 +263,14 @@ internal class AssetService: IAssetService
     private async Task<Guid?> CreateAssetUserAsync(CreateAssetRequest asset, CancellationToken cancellationToken = default)
     {
         (string firstName, string lastName) = GetNames(asset.OwnerName);
-        Guid? userId = await _accountService.GetProfileIdAsync(asset.Email);
-        if (userId is not null)
+        Guid? userProfileId = await _accountService.GetProfileIdAsync(asset.Email);
+        if (userProfileId is not null)
         {
-            _logger.LogInformation("An account already exists for {Email}", asset.Email);
-            return userId;
+            _logger.LogInformation("An account already exists for {Email}. Adding them to user role", asset.Email);
+            string? userId = await _accountService.GetIdAsync(asset.Email);
+            await _accountService.AddAccountToRoleAsync(userId!, Domain.Enums.ApplicationRole.User);
+
+            return userProfileId;
         }
 
         string username = CreateUsernameFromName(firstName, lastName);
