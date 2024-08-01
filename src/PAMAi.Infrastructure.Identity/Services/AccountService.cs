@@ -51,7 +51,7 @@ internal class AccountService: IAccountService
                 userId,
                 role);
 
-            return Result.Failure(AccountError.UnableToAddToRole with { Description = "Account does not exist." });
+            return Result.Failure(AccountErrors.UnableToAddToRole with { Description = "Account does not exist." });
         }
 
         return await AddAccountToRoleAsync(user, role);
@@ -67,7 +67,7 @@ internal class AccountService: IAccountService
         if (user is null)
         {
             _logger.LogError("Could not change password. Account {Id} can't be found", _currentUser.UserId);
-            return Result.Failure(AccountError.UnableToChangePassword with
+            return Result.Failure(AccountErrors.UnableToChangePassword with
             {
                 Description = "Account cannot be found.",
             });
@@ -79,7 +79,7 @@ internal class AccountService: IAccountService
             IEnumerable<string> errors = result.Errors.Select(err => err.Description);
             _logger.LogError("Could not change password of user {Id}. Errors: {@Errors}", user.Id, errors);
 
-            return Result.Failure(AccountError.UnableToChangePassword);
+            return Result.Failure(AccountErrors.UnableToChangePassword);
         }
 
         await UpsertUserPasswordAsync(user, credentials.NewPassword);
@@ -95,7 +95,7 @@ internal class AccountService: IAccountService
         {
             _logger.LogError("An account exists for {Email}", installer.Email);
 
-            return Result.Failure(AccountError.UnableToCreate with
+            return Result.Failure(AccountErrors.UnableToCreate with
             {
                 Description = $"An account exists for {installer.Email}"
             });
@@ -120,7 +120,7 @@ internal class AccountService: IAccountService
         {
             _logger.LogError("An account exists for {Email}", superAdmin.Email);
 
-            return Result.Failure(AccountError.UnableToCreate with
+            return Result.Failure(AccountErrors.UnableToCreate with
             {
                 Description = $"An account exists for {superAdmin.Email}"
             });
@@ -154,7 +154,7 @@ internal class AccountService: IAccountService
             Result result = await DeleteAccountAsync(user);
             if (result.IsFailure)
             {
-                return Result.Failure(AccountError.UnableToDelete);
+                return Result.Failure(AccountErrors.UnableToDelete);
             }
 
             if (userProfile is not null)
@@ -166,7 +166,7 @@ internal class AccountService: IAccountService
         catch (Exception exception)
         {
             _logger.LogError(exception, "Could not delete account {Id}. Message: {Message}", accountId, exception.Message);
-            return Result.Failure(AccountError.UnableToDelete);
+            return Result.Failure(AccountErrors.UnableToDelete);
         }
     }
 
@@ -175,7 +175,7 @@ internal class AccountService: IAccountService
         if (!_currentUser.Any)
         {
             _logger.LogError("An attempt was made to get an account profile when there is no logged in user");
-            return Result<ReadProfileResponse>.Failure(AccountError.Unauthorised);
+            return Result<ReadProfileResponse>.Failure(AccountErrors.Unauthorised);
         }
 
         return await GetProfileAsync(_currentUser.UserId!, cancellationToken);
@@ -188,7 +188,7 @@ internal class AccountService: IAccountService
         if (user is null)
         {
             _logger.LogError("User {Id} cannot be found in the database", userId);
-            return Result<ReadProfileResponse>.Failure(AccountError.NotFound);
+            return Result<ReadProfileResponse>.Failure(AccountErrors.NotFound);
         }
         if (userProfile is null)
         {
@@ -203,6 +203,40 @@ internal class AccountService: IAccountService
         user.Adapt(response, s_userToReadProfileResponseConfig);
 
         return Result<ReadProfileResponse>.Success(response);
+    }
+
+    public async Task<Result<ReadProfileResponse>> UpdateProfileAsync(UpdateProfileRequest profile, CancellationToken cancellationToken = default)
+    {
+        UserProfile? userProfile = await _unitOfWork.UserProfiles.FindAsync(_currentUser.UserId!, cancellationToken);
+        if (userProfile is null)
+        {
+            _logger.LogError("Profile for user {Id} cannot be found", _currentUser.UserId);
+            return Result<ReadProfileResponse>.Failure(AccountErrors.UnableToUpdateProfile with
+            {
+                Description = "Could not find user profile.",
+            });
+        }
+
+        if (profile.StateId is not null)
+        {
+            State? state = await _unitOfWork.States.FindAsync((long)profile.StateId, cancellationToken);
+            if (state is null)
+            {
+                _logger.LogError("Cannot update profile. State {Id} does not exist", profile.StateId);
+                return Result<ReadProfileResponse>.Failure(AccountErrors.UnableToUpdateProfile with
+                {
+                    Description = "State does not exist.",
+                });
+            }
+
+            userProfile.State = state;
+        }
+
+        profile.Adapt(userProfile, UpdateProfileRequest.ToUserProfile);
+        await _unitOfWork.CompleteAsync(cancellationToken);
+        _logger.LogInformation("User {Id} updated their profile successfully", _currentUser.UserId);
+
+        return await GetProfileAsync(cancellationToken);
     }
 
     async Task<Result<Guid>> IAccountService.CreateUserAsync(CreateUserRequest user)
@@ -225,7 +259,7 @@ internal class AccountService: IAccountService
         Result createUserResult = await CreateAccountAsync(userAccount, profile, user.Password, ApplicationRole.User);
 
         if (createUserResult.IsFailure)
-            return Result<Guid>.Failure(AccountError.UnableToCreate with
+            return Result<Guid>.Failure(AccountErrors.UnableToCreate with
             {
                 Description = "",
                 InnerError = createUserResult.Error,
@@ -242,7 +276,7 @@ internal class AccountService: IAccountService
             if (userProfile is null)
             {
                 _logger.LogError("Could not delete user. User profile {Id} is null", accountProfileId);
-                return Result.Failure(AccountError.UnableToDelete with
+                return Result.Failure(AccountErrors.UnableToDelete with
                 {
                     Description = $"User profile {accountProfileId.ToString()} cannot be found.",
                 });
@@ -258,7 +292,7 @@ internal class AccountService: IAccountService
             Result result = await DeleteAccountAsync(user);
             if (result.IsFailure)
             {
-                return Result.Failure(AccountError.UnableToDelete);
+                return Result.Failure(AccountErrors.UnableToDelete);
             }
 
             if (userProfile is not null)
@@ -270,7 +304,7 @@ internal class AccountService: IAccountService
         catch (Exception exception)
         {
             _logger.LogError(exception, "Could not delete account {Id}. Message: {Message}", accountProfileId, exception.Message);
-            return Result.Failure(AccountError.UnableToDelete);
+            return Result.Failure(AccountErrors.UnableToDelete);
         }
     }
 
@@ -368,7 +402,7 @@ internal class AccountService: IAccountService
                 ApplicationRole.SuperAdmin,
                 errors);
 
-            return Result.Failure(AccountError.UnableToAddToRole);
+            return Result.Failure(AccountErrors.UnableToAddToRole);
         }
 
         _logger.LogInformation("Account {Email} added to {Role} role", user.Email, role);
@@ -400,7 +434,7 @@ internal class AccountService: IAccountService
                 ApplicationRole.SuperAdmin,
                 errors);
 
-            return Result.Failure(AccountError.UnableToCreate);
+            return Result.Failure(AccountErrors.UnableToCreate);
         }
 
         user.UserPassword = new UserPassword
@@ -414,7 +448,7 @@ internal class AccountService: IAccountService
         if (addToRoleResult.IsFailure)
         {
             await DeleteAccountAsync(user);
-            return Result.Failure(AccountError.UnableToCreate with { InnerError = addToRoleResult.Error });
+            return Result.Failure(AccountErrors.UnableToCreate with { InnerError = addToRoleResult.Error });
         }
 
         try
@@ -428,7 +462,7 @@ internal class AccountService: IAccountService
             _logger.LogError(exception, "An error occurred. Message: {Message}", exception.Message);
             await DeleteAccountAsync(user);
 
-            return Result.Failure(AccountError.UnableToCreate);
+            return Result.Failure(AccountErrors.UnableToCreate);
         }
 
         _logger.LogInformation("Account {Email} added", user.Email);
@@ -448,7 +482,7 @@ internal class AccountService: IAccountService
                 email,
                 errors);
 
-            return Result.Failure(AccountError.UnableToDelete);
+            return Result.Failure(AccountErrors.UnableToDelete);
         }
 
         _logger.LogInformation("Account {Email} deleted", email);

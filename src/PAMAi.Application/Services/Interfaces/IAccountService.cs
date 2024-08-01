@@ -94,6 +94,20 @@ public interface IAccountService
     Task<Result<ReadProfileResponse>> GetProfileAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Update logged-in user's profile.
+    /// </summary>
+    /// <param name="profile">
+    /// Updated profile.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns>
+    /// The updated user's profile information.
+    /// </returns>
+    Task<Result<ReadProfileResponse>> UpdateProfileAsync(UpdateProfileRequest profile, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Create user account.
     /// </summary>
     /// <param name="user">
