@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddServices();
         services.ConfigureOptions(configuration);
-        services.AddValidatorsFromAssemblyContaining<Result>();
+        services.AddValidatorsFromAssemblyContaining<Result>(includeInternalTypes: true);
 
         return services;
     }

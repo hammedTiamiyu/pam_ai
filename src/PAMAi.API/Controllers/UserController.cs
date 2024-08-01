@@ -21,10 +21,10 @@ public sealed class UsersController: BaseController
     }
 
     /// <summary>
-    /// Get profile of the current signed-in user.
+    /// Get profile of the current signed-in user
     /// </summary>
     [HttpGet("me", Name = GET_LOGGED_IN_USERPROFILE_ROUTE)]
-    [RequiresRoles("SuperAdmin,Installer,User")]
+    [RequiresRoles("SuperAdmin, Installer, User")]
     [ProducesResponseType(typeof(ReadProfileResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetLoggedInUserProfileAsync(CancellationToken cancellationToken = default)
     {
@@ -32,6 +32,24 @@ public sealed class UsersController: BaseController
 
         return result.Match(
             onSuccess: Ok,
+            onFailure: ErrorResult);
+    }
+
+    /// <summary>
+    /// Change your password
+    /// </summary>
+    /// <param name="newCredentials">
+    /// New credentials
+    /// </param>
+    [HttpPost("me/change-password")]
+    [RequiresRoles("SuperAdmin, Installer, User")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> ChangePasswordAsync(ChangePasswordRequest newCredentials, CancellationToken cancellationToken = default)
+    {
+        var result = await _accountService.ChangePasswordAsync(newCredentials, cancellationToken);
+
+        return result.Match(
+            onSuccess: NoContent,
             onFailure: ErrorResult);
     }
 }

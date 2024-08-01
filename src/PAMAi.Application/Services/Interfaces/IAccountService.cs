@@ -22,6 +22,20 @@ public interface IAccountService
     Task<Result> AddAccountToRoleAsync(string userId, ApplicationRole role);
 
     /// <summary>
+    /// Change password of the current logged-in user.
+    /// </summary>
+    /// <param name="credentials">
+    /// New and old passwords.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns>
+    /// The result of the operation.
+    /// </returns>
+    Task<Result> ChangePasswordAsync(ChangePasswordRequest credentials, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Create installer account.
     /// </summary>
     /// <param name="installer">

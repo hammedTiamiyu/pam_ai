@@ -57,6 +57,37 @@ internal class AccountService: IAccountService
         return await AddAccountToRoleAsync(user, role);
     }
 
+    public async Task<Result> ChangePasswordAsync(ChangePasswordRequest credentials, CancellationToken cancellationToken = default)
+    {
+        _logger.LogTrace("Logged-in user is attempting to change their password");
+        User? user = await _identityContext.Users
+            .Where(u => u.Id == _currentUser.UserId!)
+            .Include(u => u.UserPassword)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user is null)
+        {
+            _logger.LogError("Could not change password. Account {Id} can't be found", _currentUser.UserId);
+            return Result.Failure(AccountError.UnableToChangePassword with
+            {
+                Description = "Account cannot be found.",
+            });
+        }
+
+        IdentityResult result = await _userManager.ChangePasswordAsync(user, credentials.OldPassword, credentials.NewPassword);
+        if (!result.Succeeded)
+        {
+            IEnumerable<string> errors = result.Errors.Select(err => err.Description);
+            _logger.LogError("Could not change password of user {Id}. Errors: {@Errors}", user.Id, errors);
+
+            return Result.Failure(AccountError.UnableToChangePassword);
+        }
+
+        await UpsertUserPasswordAsync(user, credentials.NewPassword);
+        _logger.LogInformation("User {Id} changed their password successfully", user.Id);
+
+        return Result.Success();
+    }
+
     public async Task<Result> CreateInstallerAsync(CreateInstallerRequest installer, CancellationToken cancellationToken = default)
     {
         User? user = await _userManager.FindByEmailAsync(installer.Email);
@@ -448,5 +479,36 @@ internal class AccountService: IAccountService
             _logger.LogDebug("Matching profile for {Email} not found", email);
 
         return profile?.Id;
+    }
+
+    /// <summary>
+    /// Insert a <see cref="UserPassword"/> record for the existing user
+    /// if they don't currently have one.
+    /// </summary>
+    /// <param name="user">
+    /// User account.
+    /// </param>
+    /// <param name="password">
+    /// User password.
+    /// </param>
+    /// <returns></returns>
+    private async Task UpsertUserPasswordAsync(User user, string password)
+    {
+        if (user.UserPassword is not null)
+        {
+            _logger.LogTrace("{Name} exists for user {Id}", nameof(UserPassword), user.Id);
+            user.UserPassword.Password = Cryptography.Encrypt(password);
+        }
+        else
+        {
+            user.UserPassword = new UserPassword
+            {
+                Password = Cryptography.Encrypt(password),
+            };
+        }
+
+        _identityContext.Users.Update(user);
+        await _identityContext.SaveChangesAsync();
+        _logger.LogTrace("{Name} upserted for user {Id}", nameof(UserPassword), user.Id);
     }
 }
