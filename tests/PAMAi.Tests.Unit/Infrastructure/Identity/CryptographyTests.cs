@@ -5,12 +5,13 @@ namespace PAMAi.Tests.Unit.Infrastructure.Identity;
 
 internal class CryptographyTests: BaseTest
 {
-    [Test]
-    public void Should_EncryptAndDecrypt()
+    [TestCase("A couple of 3 letters and one symbol!", Description = "This exact string is run twice to test if the encrypted value will be unique despite being the same string.")]
+    [TestCase("A couple of 3 letters and one symbol!", Description = "This exact string is run twice to test if the encrypted value will be unique despite being the same string.")]
+    [TestCase("$ecret P@ssw0RD")]
+    public void Should_EncryptAndDecrypt(string text)
     {
-        string text = "A couple of 3 letters and one symbol!";
         var ciphertext = Cryptography.Encrypt(text);
-        Trace.WriteLine($"ciphertext: {ciphertext}");
+        Trace.WriteLine($"Encrypted '{text}': {ciphertext}");
         string decryptedText = Cryptography.Decrypt(ciphertext);
 
         Assert.That(decryptedText, Is.EqualTo(text));
