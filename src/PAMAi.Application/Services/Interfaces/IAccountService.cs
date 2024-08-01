@@ -1,4 +1,5 @@
 ﻿using PAMAi.Application.Dto.Account;
+using PAMAi.Application.Services.Models;
 using PAMAi.Domain.Enums;
 
 namespace PAMAi.Application.Services.Interfaces;
@@ -130,4 +131,16 @@ public interface IAccountService
     /// <param name="email"></param>
     /// <returns></returns>
     protected internal Task<Guid?> GetProfileIdAsync(string email);
+
+    /// <summary>
+    /// Get user's credentials.
+    /// </summary>
+    /// <param name="userId">
+    /// User ID.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling the operation.
+    /// </param>
+    /// <returns></returns>
+    protected internal Task<UserCredentials?> GetUserCredentialsAsync(string userId, CancellationToken cancellationToken = default);
 }

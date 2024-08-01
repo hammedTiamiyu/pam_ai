@@ -11,6 +11,8 @@ public class IdentityContext: IdentityDbContext<User>
     {
     }
 
+    public DbSet<UserPassword> UserPasswords { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -60,6 +62,16 @@ public class IdentityContext: IdentityDbContext<User>
 
                 owned.Ignore(r => r.IsExpired);
             });
+
+            entity.HasOne(u => u.UserPassword)
+                .WithOne()
+                .HasForeignKey<UserPassword>(up => up.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<UserPassword>(entity =>
+        {
+            entity.ToTable("UserPassword");
         });
     }
 }

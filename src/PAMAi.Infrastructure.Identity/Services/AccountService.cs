@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using PAMAi.Application;
 using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Services.Interfaces;
+using PAMAi.Application.Services.Models;
 using PAMAi.Application.Storage;
 using PAMAi.Domain.Entities;
 using PAMAi.Domain.Enums;
@@ -270,6 +271,32 @@ internal class AccountService: IAccountService
         return await GetProfileIdAsync(email);
     }
 
+    async Task<UserCredentials?> IAccountService.GetUserCredentialsAsync(string userId, CancellationToken cancellationToken)
+    {
+        User? user = await _identityContext.Users
+            .Where(u => u.Id == userId)
+            .Include(u => u.UserPassword)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user is null)
+        {
+            _logger.LogError("Could not get user credentials. User {Id} does not exist", userId);
+            return null;
+        }
+        if (user.UserPassword is null)
+        {
+            _logger.LogError("Could not get user credentials. Credential of user {Id} not recorded", userId);
+            return null;
+        }
+
+        _logger.LogTrace("Retrieved user credentials");
+
+        return new UserCredentials
+        {
+            Password = Cryptography.Decrypt(user.UserPassword.Password),
+            Email = user.Email!,
+        };
+    }
+
     private async Task<Result> AddAccountToRoleAsync(User user, ApplicationRole role)
     {
         _logger.LogInformation("Adding account {Email} to {Role} role", user.Email, role);
@@ -344,6 +371,13 @@ internal class AccountService: IAccountService
 
             return Result.Failure(AccountError.UnableToCreate);
         }
+
+        user.UserPassword = new UserPassword
+        {
+            Password = Cryptography.Encrypt(password),
+        };
+        _identityContext.Users.Update(user);
+        await _identityContext.SaveChangesAsync();
 
         Result addToRoleResult = await AddAccountToRoleAsync(user, role);
         if (addToRoleResult.IsFailure)

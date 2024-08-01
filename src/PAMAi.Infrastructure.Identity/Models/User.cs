@@ -8,6 +8,11 @@ namespace PAMAi.Infrastructure.Identity.Models;
 public class User: IdentityUser
 {
     /// <summary>
+    /// User password.
+    /// </summary>
+    public UserPassword? UserPassword { get; set; }/* = new();*/
+
+    /// <summary>
     /// User's refresh token.
     /// </summary>
     public List<RefreshToken> RefreshTokens { get; set; } = [];

@@ -73,7 +73,7 @@ public interface IAssetService
     /// <returns>
     /// The result of the operation.
     /// </returns>
-    Task<Result> SendAccountDetailsToAssetUserAsync(Guid assetId, CancellationToken cancellationToken = default);
+    Task<Result> InviteAssetUserAsync(Guid assetId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Update asset.

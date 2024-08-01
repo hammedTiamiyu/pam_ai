@@ -78,12 +78,16 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
                 if (response.IsSuccessful)
                 {
                     var smsResponse = JsonConvert.DeserializeObject<SmsResponse>(response.Content!);
-                    _logger.LogInformation("Successsfully sent SMS to '{PhoneNumber}'", message.To);
+                    _logger.LogInformation("Successsfully sent SMS to '{PhoneNumber}'. API response: {@Response}",
+                        message.To,
+                        smsResponse);
                     return Result<SmsResponse>.Success(smsResponse!);
                 }
                 else
                 {
-                    _logger.LogError("Failed to send SMS to '{PhoneNumber}'", message.To);
+                    _logger.LogError("Failed to send SMS to '{PhoneNumber}'. API response: '{@Response}'",
+                        message.To,
+                        response.Content);
                     return Result<SmsResponse>.Failure(SMSErrors.SMSFailure with
                     {
                         Description = "Wasn't Successful, Check Params",
