@@ -432,6 +432,7 @@ internal class AccountService: IAccountService
         _logger.LogInformation("Adding account {Email}", user.Email);
 
         int triesAvailable = 4;
+        user.CreatedUtc = DateTimeOffset.Now;
         IdentityResult result = await _userManager.CreateAsync(user, password);
 
         while (!result.Succeeded && triesAvailable > 0)
