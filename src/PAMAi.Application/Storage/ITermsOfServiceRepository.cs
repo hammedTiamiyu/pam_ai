@@ -4,8 +4,8 @@ using PAMAi.Domain.Entities;
 namespace PAMAi.Application.Storage;
 
 /// <summary>
-/// <see cref="LegalContract"/> entities in the database.
+/// <see cref="TermsOfService"/> entities in the database.
 /// </summary>
-public interface ILegalContractRepository: IRepository<LegalContract, int>
+public interface ITermsOfServiceRepository: IRepository<TermsOfService, int>
 {
 }

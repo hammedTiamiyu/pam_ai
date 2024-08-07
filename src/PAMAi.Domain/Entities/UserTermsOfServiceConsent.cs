@@ -4,9 +4,9 @@ namespace PAMAi.Domain.Entities;
 
 /// <summary>
 /// Contains information about a user's consent to PAMAi's legal
-/// terms.
+/// terms of service.
 /// </summary>
-public class UserLegalContractConsent: IEntity
+public class UserTermsOfServiceConsent: IEntity
 {
     /// <summary>
     /// Id of the profile of the user who accepted the agreement.
@@ -14,9 +14,9 @@ public class UserLegalContractConsent: IEntity
     public Guid UserProfileId { get; set; }
 
     /// <summary>
-    /// Legal contract Id.
+    /// Legal terms of service's Id.
     /// </summary>
-    public int LegalContractId { get; set; }
+    public int TermsOfServiceId { get; set; }
 
     /// <summary>
     /// The date the user accepted the legal contract.
@@ -34,7 +34,7 @@ public class UserLegalContractConsent: IEntity
     public UserProfile? UserProfile { get; set; }
 
     /// <summary>
-    /// Legal contract.
+    /// Legal terms of service.
     /// </summary>
-    public LegalContract? LegalContract { get; set; }
+    public TermsOfService? TermsOfService { get; set; }
 }

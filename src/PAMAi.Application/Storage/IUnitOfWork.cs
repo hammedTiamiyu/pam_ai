@@ -8,10 +8,10 @@ public interface IUnitOfWork: IDisposable, IAsyncDisposable
     #region Repositories
     IAssetRepository Assets { get; }
     ICountryRepository Countries { get; }
-    ILegalContractRepository LegalContracts { get; }
     IStateRepository States { get; }
+    ITermsOfServiceRepository TermsOfService { get; }
     IUserProfileRepository UserProfiles { get; }
-    IUserLegalContractConsentRepository UserLegalContractConsents { get; }
+    IUserTermsOfServiceConsentRepository UserTermsOfServiceConsents { get; }
     #endregion
 
     /// <summary>

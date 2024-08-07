@@ -74,5 +74,5 @@ public sealed class UserProfile: IEntity<Guid>
     /// <summary>
     /// PAMAi's legal terms and an indication if this user accepted it or not.
     /// </summary>
-    public List<UserLegalContractConsent> LegalTermsConsents { get; set; } = [];
+    public List<UserTermsOfServiceConsent> LegalTermsConsents { get; set; } = [];
 }

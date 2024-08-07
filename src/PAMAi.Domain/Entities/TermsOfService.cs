@@ -3,9 +3,9 @@
 namespace PAMAi.Domain.Entities;
 
 /// <summary>
-/// Contract/Terms and Conditions every user must accept to use PAMAi.
+/// Terms of Service which every user must accept to use PAMAi.
 /// </summary>
-public class LegalContract: IEntity<int>
+public class TermsOfService: IEntity<int>
 {
     /// <inheritdoc/>
     public int Id { get; set; }
@@ -43,5 +43,5 @@ public class LegalContract: IEntity<int>
     /// <summary>
     /// List of users and their consent to this legal contract.
     /// </summary>
-    public List<UserLegalContractConsent> UserLegalContractConsents { get; set; } = [];
+    public List<UserTermsOfServiceConsent> UserTermsOfServiceConsents { get; set; } = [];
 }

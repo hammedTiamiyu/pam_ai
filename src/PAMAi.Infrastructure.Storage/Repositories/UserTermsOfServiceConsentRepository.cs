@@ -4,9 +4,9 @@ using PAMAi.Infrastructure.Storage.Contexts;
 using PAMAi.Infrastructure.Storage.Repositories.Base;
 
 namespace PAMAi.Infrastructure.Storage.Repositories;
-internal class LegalContractRepository: Repository<LegalContract, int>, ILegalContractRepository
+internal class UserTermsOfServiceConsentRepository: Repository<UserTermsOfServiceConsent>, IUserTermsOfServiceConsentRepository
 {
-    public LegalContractRepository(ApplicationDbContext context, ILogger<UnitOfWork> logger)
+    public UserTermsOfServiceConsentRepository(ApplicationDbContext context, ILogger<UnitOfWork> logger)
         : base(context, logger)
     {
     }
