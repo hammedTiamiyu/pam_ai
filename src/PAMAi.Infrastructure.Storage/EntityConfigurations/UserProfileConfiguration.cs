@@ -19,9 +19,18 @@ internal sealed class UserProfileConfiguration: IEntityTypeConfiguration<UserPro
             .HasForeignKey(u => u.StateId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(u => u.LegalTermsConsents)
-            .WithOne(uc => uc.UserProfile)
-            .HasForeignKey(uc => uc.UserProfileId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(u => u.TermsOfService)
+            .WithMany(t => t.UserProfiles)
+            .UsingEntity<UserTermsOfServiceConsent>(builder =>
+            {
+                builder.ToTable("UserTermsOfServiceConsent", t =>
+                {
+                    t.HasComment("User consent to the different terms and conditions in the application.");
+                });
+
+                builder.HasIndex(ut => ut.AcceptedDateUtc);
+
+                builder.Ignore(ut => ut.IsAccepted);
+            });
     }
 }

@@ -38,7 +38,12 @@ public class TermsOfService: IEntity<int>
     /// <summary>
     /// Indicates whether the legal contract is still active or not.
     /// </summary>
-    public bool IsActive => DateTimeOffset.UtcNow > EffectiveFromUtc && !DeactivatedUtc.HasValue;
+    public bool IsActive => DateTimeOffset.UtcNow >= EffectiveFromUtc && !DeactivatedUtc.HasValue;
+
+    /// <summary>
+    /// User profiles.
+    /// </summary>
+    public List<UserProfile> UserProfiles { get; set; } = [];
 
     /// <summary>
     /// List of users and their consent to this legal contract.

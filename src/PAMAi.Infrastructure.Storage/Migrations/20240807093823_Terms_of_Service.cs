@@ -6,17 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PAMAi.Infrastructure.Storage.Migrations
 {
     /// <inheritdoc />
-    public partial class Legal_Contract: Migration
+    public partial class Terms_of_Service: Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "Legal terms and conditions of the PAMAi application.");
-
             migrationBuilder.CreateTable(
-                name: "LegalContract",
-                schema: "Legal terms and conditions of the PAMAi application.",
+                name: "TermsOfService",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -30,64 +26,63 @@ namespace PAMAi.Infrastructure.Storage.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LegalContract", x => x.Id);
-                })
+                    table.PrimaryKey("PK_TermsOfService", x => x.Id);
+                },
+                comment: "Legal Terms of Service of the PAMAi application.")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "UserLegalContractConsent",
+                name: "UserTermsOfServiceConsent",
                 columns: table => new
                 {
                     UserProfileId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
-                    LegalContractId = table.Column<int>(type: "int", nullable: false),
+                    TermsOfServiceId = table.Column<int>(type: "int", nullable: false),
                     AcceptedDateUtc = table.Column<DateTimeOffset>(type: "datetime(6)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserLegalContractConsent", x => new { x.UserProfileId, x.LegalContractId });
+                    table.PrimaryKey("PK_UserTermsOfServiceConsent", x => new { x.TermsOfServiceId, x.UserProfileId });
                     table.ForeignKey(
-                        name: "FK_UserLegalContractConsent_LegalContract_LegalContractId",
-                        column: x => x.LegalContractId,
-                        principalSchema: "Legal terms and conditions of the PAMAi application.",
-                        principalTable: "LegalContract",
+                        name: "FK_UserTermsOfServiceConsent_TermsOfService_TermsOfServiceId",
+                        column: x => x.TermsOfServiceId,
+                        principalTable: "TermsOfService",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserLegalContractConsent_UserProfile_UserProfileId",
+                        name: "FK_UserTermsOfServiceConsent_UserProfile_UserProfileId",
                         column: x => x.UserProfileId,
                         principalTable: "UserProfile",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                })
+                },
+                comment: "User consent to the different terms and conditions in the application.")
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LegalContract_Version",
-                schema: "Legal terms and conditions of the PAMAi application.",
-                table: "LegalContract",
+                name: "IX_TermsOfService_Version",
+                table: "TermsOfService",
                 column: "Version",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserLegalContractConsent_AcceptedDateUtc",
-                table: "UserLegalContractConsent",
+                name: "IX_UserTermsOfServiceConsent_AcceptedDateUtc",
+                table: "UserTermsOfServiceConsent",
                 column: "AcceptedDateUtc");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserLegalContractConsent_LegalContractId",
-                table: "UserLegalContractConsent",
-                column: "LegalContractId");
+                name: "IX_UserTermsOfServiceConsent_UserProfileId",
+                table: "UserTermsOfServiceConsent",
+                column: "UserProfileId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "UserLegalContractConsent");
+                name: "UserTermsOfServiceConsent");
 
             migrationBuilder.DropTable(
-                name: "LegalContract",
-                schema: "Legal terms and conditions of the PAMAi application.");
+                name: "TermsOfService");
         }
     }
 }

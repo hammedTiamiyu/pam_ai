@@ -207,24 +207,24 @@ namespace PAMAi.Infrastructure.Storage.Migrations
 
             modelBuilder.Entity("PAMAi.Domain.Entities.UserTermsOfServiceConsent", b =>
                 {
-                    b.Property<Guid>("UserProfileId")
-                        .HasColumnType("char(36)");
-
                     b.Property<int>("TermsOfServiceId")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTimeOffset?>("AcceptedDateUtc")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("UserProfileId", "TermsOfServiceId");
+                    b.HasKey("TermsOfServiceId", "UserProfileId");
 
                     b.HasIndex("AcceptedDateUtc");
 
-                    b.HasIndex("TermsOfServiceId");
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("UserTermsOfServiceConsent", null, t =>
                         {
-                            t.HasComment("User consents to the different terms and conditions in the application.");
+                            t.HasComment("User consent to the different terms and conditions in the application.");
                         });
                 });
 

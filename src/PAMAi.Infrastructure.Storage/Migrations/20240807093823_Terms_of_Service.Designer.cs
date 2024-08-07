@@ -12,8 +12,8 @@ using PAMAi.Infrastructure.Storage.Contexts;
 namespace PAMAi.Infrastructure.Storage.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240807072322_Terms_of_service_redo")]
-    partial class Terms_of_service_redo
+    [Migration("20240807093823_Terms_of_Service")]
+    partial class Terms_of_Service
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -210,24 +210,24 @@ namespace PAMAi.Infrastructure.Storage.Migrations
 
             modelBuilder.Entity("PAMAi.Domain.Entities.UserTermsOfServiceConsent", b =>
                 {
-                    b.Property<Guid>("UserProfileId")
-                        .HasColumnType("char(36)");
-
                     b.Property<int>("TermsOfServiceId")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("char(36)");
 
                     b.Property<DateTimeOffset?>("AcceptedDateUtc")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("UserProfileId", "TermsOfServiceId");
+                    b.HasKey("TermsOfServiceId", "UserProfileId");
 
                     b.HasIndex("AcceptedDateUtc");
 
-                    b.HasIndex("TermsOfServiceId");
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("UserTermsOfServiceConsent", null, t =>
                         {
-                            t.HasComment("User consents to the different terms and conditions in the application.");
+                            t.HasComment("User consent to the different terms and conditions in the application.");
                         });
                 });
 
