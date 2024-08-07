@@ -70,4 +70,9 @@ public sealed class UserProfile: IEntity<Guid>
     /// Residence state.
     /// </summary>
     public State? State { get; set; }
+
+    /// <summary>
+    /// PAMAi's legal terms and an indication if this user accepted it or not.
+    /// </summary>
+    public List<UserLegalContractConsent> LegalTermsConsents { get; set; } = [];
 }

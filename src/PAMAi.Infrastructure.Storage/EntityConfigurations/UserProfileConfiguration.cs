@@ -18,5 +18,10 @@ internal sealed class UserProfileConfiguration: IEntityTypeConfiguration<UserPro
             .WithMany()
             .HasForeignKey(u => u.StateId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(u => u.LegalTermsConsents)
+            .WithOne(uc => uc.UserProfile)
+            .HasForeignKey(uc => uc.UserProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
