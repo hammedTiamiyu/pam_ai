@@ -27,6 +27,9 @@ public record CreateSuperAdminRequest
 
     /// <example>p@55woRd</example>
     public string PasswordConfirmation { get; set; } = string.Empty;
+
+    /// <example>true</example>
+    public bool AcceptTermsOfService { get; set; }
 }
 
 internal class CreateSuperAdminRequestValidator: AbstractValidator<CreateSuperAdminRequest>
@@ -38,5 +41,6 @@ internal class CreateSuperAdminRequestValidator: AbstractValidator<CreateSuperAd
         RuleFor(c => c.Username).NotEmpty();
         RuleFor(c => c.Email).EmailAddress();
         RuleFor(c => c.Password).Equal(c => c.PasswordConfirmation);
+        RuleFor(c => c.AcceptTermsOfService).Equal(true).WithMessage("Super Admin must accept the Terms of Service to create an account on this platform.");
     }
 }

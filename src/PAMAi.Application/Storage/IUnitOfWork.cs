@@ -9,7 +9,9 @@ public interface IUnitOfWork: IDisposable, IAsyncDisposable
     IAssetRepository Assets { get; }
     ICountryRepository Countries { get; }
     IStateRepository States { get; }
+    ITermsOfServiceRepository TermsOfService { get; }
     IUserProfileRepository UserProfiles { get; }
+    IUserTermsOfServiceConsentRepository UserTermsOfServiceConsents { get; }
     #endregion
 
     /// <summary>

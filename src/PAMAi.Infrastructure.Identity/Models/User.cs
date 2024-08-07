@@ -16,4 +16,9 @@ public class User: IdentityUser
     /// User's refresh token.
     /// </summary>
     public List<RefreshToken> RefreshTokens { get; set; } = [];
+
+    /// <summary>
+    /// Date the user was created.
+    /// </summary>
+    public DateTimeOffset CreatedUtc { get; set; }
 }

@@ -70,4 +70,14 @@ public sealed class UserProfile: IEntity<Guid>
     /// Residence state.
     /// </summary>
     public State? State { get; set; }
+
+    /// <summary>
+    /// Terms of service for the application.
+    /// </summary>
+    public List<TermsOfService> TermsOfService { get; set; } = [];
+
+    /// <summary>
+    /// PAMAi's legal terms and an indication if this user accepted it or not.
+    /// </summary>
+    public List<UserTermsOfServiceConsent> LegalTermsConsents { get; set; } = [];
 }

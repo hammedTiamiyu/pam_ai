@@ -12,8 +12,8 @@ public class NotificationsController: BaseController
 {
     private readonly INotificationService _notificationService;
 
-    public NotificationsController(INotificationService notificationService, 
-        IHttpContextAccessor httpContextAccessor) : base (httpContextAccessor)
+    public NotificationsController(INotificationService notificationService,
+        IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
     {
         _notificationService = notificationService;
     }

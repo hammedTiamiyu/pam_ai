@@ -1,7 +1,5 @@
-﻿using PAMAi.Application;
-
-namespace PAMAi.Application.Errors;
+﻿namespace PAMAi.Application.Errors;
 internal static class NotificationErrors
 {
-    internal readonly static Error SendFailed = new("Notifications failed");
+    internal static readonly Error SendFailed = new("Notifications failed");
 }

@@ -20,7 +20,9 @@ internal sealed class UnitOfWork: IUnitOfWork
         Assets = new AssetRepository(_dbContext, _logger);
         Countries = new CountryRepository(_dbContext, _logger);
         States = new StateRepository(_dbContext, _logger);
+        TermsOfService = new TermsOfServiceRepository(_dbContext, _logger);
         UserProfiles = new UserProfileRepository(_dbContext, _logger);
+        UserTermsOfServiceConsents = new UserTermsOfServiceConsentRepository(_dbContext, _logger);
     }
 
     ~UnitOfWork()
@@ -31,7 +33,9 @@ internal sealed class UnitOfWork: IUnitOfWork
     public IAssetRepository Assets { get; }
     public ICountryRepository Countries { get; }
     public IStateRepository States { get; }
+    public ITermsOfServiceRepository TermsOfService { get; }
     public IUserProfileRepository UserProfiles { get; }
+    public IUserTermsOfServiceConsentRepository UserTermsOfServiceConsents { get; }
 
     public async Task<int> CompleteAsync(CancellationToken cancellationToken = default)
     {

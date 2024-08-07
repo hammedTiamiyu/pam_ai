@@ -11,6 +11,7 @@ public static class IHostExtensions
         Seeder seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
 
         await seeder.SeedCountriesAsync();
+        await seeder.SeedDefaultTermsOfServiceAsync();
 
         return app;
     }

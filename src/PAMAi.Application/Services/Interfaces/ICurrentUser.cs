@@ -25,4 +25,9 @@ public interface ICurrentUser
     /// Role the user logged in as.
     /// </summary>
     public ApplicationRole? Role { get; }
+
+    /// <summary>
+    /// User's profile ID.
+    /// </summary>
+    Guid? UserProfileId { get; }
 }

@@ -51,6 +51,9 @@ public record ReadProfileResponse
     /// <example>null</example>
     public string? CompanyName { get; set; }
 
+    /// <example>true</example>
+    public bool AcceptedTermsOfService { get; set; }
+
     [JsonIgnore]
     public static TypeAdapterConfig FromUserProfile => TypeAdapterConfig<UserProfile, ReadProfileResponse>
         .NewConfig()

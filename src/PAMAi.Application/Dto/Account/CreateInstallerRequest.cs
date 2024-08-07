@@ -39,6 +39,9 @@ public record CreateInstallerRequest
 
     /// <example>p@55woRd</example>
     public string PasswordConfirmation { get; set; } = string.Empty;
+
+    /// <example>true</example>
+    public bool AcceptTermsOfService { get; set; }
 }
 
 internal class CreateInstallerRequestValidator: AbstractValidator<CreateInstallerRequest>
@@ -50,5 +53,6 @@ internal class CreateInstallerRequestValidator: AbstractValidator<CreateInstalle
         RuleFor(c => c.Username).NotEmpty();
         RuleFor(c => c.Email).EmailAddress();
         RuleFor(c => c.Password).Equal(c => c.PasswordConfirmation);
+        RuleFor(c => c.AcceptTermsOfService).Equal(true).WithMessage("Installer must accept the Terms of Service to create an account on this platform.");
     }
 }
