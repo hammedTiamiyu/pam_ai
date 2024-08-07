@@ -30,4 +30,22 @@ internal sealed class UserProfileRepository: Repository<UserProfile, Guid>, IUse
 
         return user;
     }
+
+    public override async Task<IEnumerable<UserProfile>> GetAsync(CancellationToken cancellationToken = default)
+    {
+        Logger.LogTrace("Retrieving all {entity} records", nameof(UserProfile));
+
+        var watch = Stopwatch.StartNew();
+        // Fetch only the IDs of the profiles (that's what is needed for now).
+        var userProfiles = await DbContext.UserProfiles
+            .Select(u => new UserProfile
+            {
+                Id = u.Id,
+            })
+            .ToListAsync(cancellationToken);
+        watch.Stop();
+        Logger.LogDebug("Retrieved all {entity} records in {time} ms", nameof(UserProfile), watch.ElapsedMilliseconds);
+
+        return userProfiles;
+    }
 }

@@ -52,6 +52,7 @@ internal sealed partial class Seeder
             CompanyName = "Port Harcourt Electrical Distribution Company",
             HouseNumber = "House 8",
             Street = "Ada George",
+            AcceptTermsOfService = true,
         };
         Result result = await _accountService.CreateInstallerAsync(installer);
 

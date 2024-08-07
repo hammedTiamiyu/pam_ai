@@ -48,6 +48,7 @@ internal sealed partial class Seeder
             Password = password,
             PasswordConfirmation = password,
             StateId = state.Id,
+            AcceptTermsOfService = true,
         };
         Result result = await _accountService.CreateSuperAdminAsync(superAdmin);
 

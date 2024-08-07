@@ -108,7 +108,7 @@ internal class AccountService: IAccountService
             PhoneNumber = installer.PhoneNumber,
         };
         UserProfile profile = installer.Adapt<UserProfile>();
-        Result createUserResult = await CreateAccountAsync(user, profile, installer.Password, ApplicationRole.Installer);
+        Result createUserResult = await CreateAccountAsync(user, profile, installer.Password, ApplicationRole.Installer, installer.AcceptTermsOfService);
 
         return createUserResult;
     }
@@ -133,7 +133,7 @@ internal class AccountService: IAccountService
             PhoneNumber = superAdmin.PhoneNumber,
         };
         UserProfile profile = superAdmin.Adapt<UserProfile>();
-        Result createUserResult = await CreateAccountAsync(user, profile, superAdmin.Password, ApplicationRole.SuperAdmin);
+        Result createUserResult = await CreateAccountAsync(user, profile, superAdmin.Password, ApplicationRole.SuperAdmin, superAdmin.AcceptTermsOfService);
 
         return createUserResult;
     }
@@ -201,6 +201,7 @@ internal class AccountService: IAccountService
 
         ReadProfileResponse response = userProfile.Adapt<ReadProfileResponse>(ReadProfileResponse.FromUserProfile);
         user.Adapt(response, s_userToReadProfileResponseConfig);
+        response.AcceptedTermsOfService = await _unitOfWork.UserTermsOfServiceConsents.IsCurrentTermsOfServiceAcceptedAsync(userProfile.Id, cancellationToken);
 
         return Result<ReadProfileResponse>.Success(response);
     }
@@ -256,7 +257,7 @@ internal class AccountService: IAccountService
             PhoneNumber = user.PhoneNumber,
         };
         UserProfile profile = user.Adapt<UserProfile>();
-        Result createUserResult = await CreateAccountAsync(userAccount, profile, user.Password, ApplicationRole.User);
+        Result createUserResult = await CreateAccountAsync(userAccount, profile, user.Password, ApplicationRole.User, false);
 
         if (createUserResult.IsFailure)
             return Result<Guid>.Failure(AccountErrors.UnableToCreate with
@@ -409,7 +410,24 @@ internal class AccountService: IAccountService
         return Result.Success();
     }
 
-    private async Task<Result> CreateAccountAsync(User user, UserProfile profile, string password, ApplicationRole role)
+    private async Task AddDefaultUserConsentAsync(Guid userProfileId, bool acceptCurrent = false)
+    {
+        var allTerms = await _unitOfWork.TermsOfService.GetAsync();
+        foreach (var termsOfService in allTerms)
+        {
+            UserTermsOfServiceConsent userTermsOfServiceConsent = new()
+            {
+                TermsOfServiceId = termsOfService.Id,
+                UserProfileId = userProfileId,
+                // Accept this ToS if it is the active one, and the user indicated their acceptance.
+                AcceptedDateUtc = (acceptCurrent && termsOfService.IsActive) ? DateTimeOffset.UtcNow : null,
+            };
+            await _unitOfWork.UserTermsOfServiceConsents.AddAsync(userTermsOfServiceConsent);
+        }
+        await _unitOfWork.CompleteAsync();
+    }
+
+    private async Task<Result> CreateAccountAsync(User user, UserProfile profile, string password, ApplicationRole role, bool acceptTermsOfService)
     {
         _logger.LogInformation("Adding account {Email}", user.Email);
 
@@ -456,6 +474,7 @@ internal class AccountService: IAccountService
             profile.UserId = Guid.Parse(user.Id);
             await _unitOfWork.UserProfiles.AddAsync(profile);
             await _unitOfWork.CompleteAsync();
+            await AddDefaultUserConsentAsync(profile.Id, acceptTermsOfService);
         }
         catch (Exception exception)
         {
