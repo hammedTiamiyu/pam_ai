@@ -12,7 +12,7 @@ internal class UserTermsOfServiceConsentRepository: Repository<UserTermsOfServic
     {
     }
 
-    public async Task<UserTermsOfServiceConsent?> FindAsync(Guid userProfileId,  int termsOfServiceId, CancellationToken cancellationToken = default)
+    public async Task<UserTermsOfServiceConsent?> FindAsync(Guid userProfileId, int termsOfServiceId, CancellationToken cancellationToken = default)
     {
         Logger.LogTrace("Fetching {Type} for user profile {Id} and Terms of Service {id}",
             typeof(UserTermsOfServiceConsent).FullName,

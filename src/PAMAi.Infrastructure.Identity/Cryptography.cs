@@ -51,13 +51,13 @@ internal static class Cryptography
     {
         byte[] randomBytes = new byte[IV_LENGTH];
         RandomNumberGenerator.Fill(randomBytes);
-        
+
         return randomBytes;
     }
 
     private static byte[] CombineCiphertextAndIv(byte[] ciphertext, byte[] iv)
     {
-        return [..iv, ..ciphertext];
+        return [.. iv, .. ciphertext];
     }
 
     private static (byte[] ciphertext, byte[] iv) SplitCiphertextAndIv(byte[] bytes)

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace PAMAi.Application.Dto.TermsOfService;
+﻿namespace PAMAi.Application.Dto.TermsOfService;
 
 public record PreviewTermsOfServiceResponse
 {

@@ -55,7 +55,7 @@ public class LegalsController: BaseController
     public async Task<IActionResult> CreateTermsOfServiceAsync(CreateTermsOfServiceRequest termsOfService, CancellationToken cancellationToken)
     {
         var result = await _legalService.CreateTermsOfServiceAsync(termsOfService, cancellationToken);
-        
+
         return result.Match(
             onSuccess: data => CreatedAtRoute(GET_TERMS_BY_ID_ROUTE_NAME, new { id = data }, null),
             onFailure: ErrorResult);
