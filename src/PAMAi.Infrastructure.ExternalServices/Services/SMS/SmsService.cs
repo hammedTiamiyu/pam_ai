@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PAM_Ai.PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Application;
 using PAMAi.Application.Dto.SMS;
 using PAMAi.Application.Services.Interfaces;
