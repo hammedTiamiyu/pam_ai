@@ -19,13 +19,13 @@ internal sealed class PushNotificationService: IPushNotificationService
     {
         _logger = logger;
 
-        var credentialsPath = configuration["Firebase:CredentialsPath"];
-        _firebaseApp = FirebaseApp.Create(new AppOptions
-        {
-            Credential = GoogleCredential.FromFile(credentialsPath)
-        });
+        //var credentialsPath = configuration["Firebase:CredentialsPath"];
+        //_firebaseApp = FirebaseApp.Create(new AppOptions
+        //{
+        //    Credential = GoogleCredential.FromFile(credentialsPath)
+        //});
 
-        _logger.LogInformation("Firebase App initialized with credentials from {path}", credentialsPath);
+        //_logger.LogInformation("Firebase App initialized with credentials from {path}", credentialsPath);
     }
 
     public async Task<Result> SendAsync(NotificationContents.PushContent content, string deviceToken, CancellationToken cancellationToken = default)
