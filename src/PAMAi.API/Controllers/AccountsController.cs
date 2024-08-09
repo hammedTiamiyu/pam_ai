@@ -6,7 +6,7 @@ using PAMAi.Domain.Enums;
 namespace PAMAi.API.Controllers;
 
 /// <summary>
-/// Manage account creation and authentication.
+/// Manage account creation and authentication
 /// </summary>
 [ApiController]
 [ApiVersion(1.0)]
@@ -33,55 +33,6 @@ public sealed class AccountsController: BaseController
     }
 
     /// <summary>
-    /// Account login for super admins
-    /// </summary>
-    /// <param name="credential">Account credentials</param>
-    [HttpPost("admin/login")]
-    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> LoginAsync(LoginRequest credential, CancellationToken cancellationToken)
-    {
-        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.SuperAdmin, cancellationToken);
-
-        return result.Match(
-            onSuccess: Ok,
-            onFailure: error => _genericFailedLoginResponse);
-    }
-
-    /// <summary>
-    /// Create installer account
-    /// </summary>
-    /// <param name="installer">
-    /// Account details
-    /// </param>
-    [HttpPost("installers")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    public async Task<IActionResult> CreateInstallerAsync(CreateInstallerRequest installer, CancellationToken cancellationToken)
-    {
-        var result = await _accountService.CreateInstallerAsync(installer, cancellationToken);
-
-        return result.Match(
-            onSuccess: () => CreatedAtRoute(UsersController.GET_LOGGED_IN_USERPROFILE_ROUTE, null),
-            onFailure: ErrorResult);
-    }
-
-    /// <summary>
-    /// Account login for installers
-    /// </summary>
-    /// <param name="credential">Account credentials</param>
-    [HttpPost("installers/login")]
-    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> InstallerLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
-    {
-        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.Installer, cancellationToken);
-
-        return result.Match(
-            onSuccess: Ok,
-            onFailure: error => _genericFailedLoginResponse);
-    }
-
-    /// <summary>
     /// Account login for users
     /// </summary>
     /// <param name="credential">Account credentials</param>
@@ -90,7 +41,25 @@ public sealed class AccountsController: BaseController
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UserLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
     {
-        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.User, cancellationToken);
+        var result = await _authenticationService.LoginAsync(credential, cancellationToken);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: error => _genericFailedLoginResponse);
+    }
+
+    /// <summary>
+    /// Login
+    /// </summary>
+    /// <param name="credential">
+    /// User credentials
+    /// </param>
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> LoginAsync(NewLoginRequest credential, CancellationToken cancellationToken)
+    {
+        var result = await _authenticationService.LoginAsync(credential, credential.Role, cancellationToken);
 
         return result.Match(
             onSuccess: Ok,
@@ -124,5 +93,56 @@ public sealed class AccountsController: BaseController
         return result.Match(
             onSuccess: Ok,
             onFailure: ErrorResult);
+    }
+
+    /// <summary>
+    /// Create installer account
+    /// </summary>
+    /// <param name="installer">
+    /// Account details
+    /// </param>
+    [HttpPost("installers")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateInstallerAsync(CreateInstallerRequest installer, CancellationToken cancellationToken)
+    {
+        var result = await _accountService.CreateInstallerAsync(installer, cancellationToken);
+
+        return result.Match(
+            onSuccess: () => CreatedAtRoute(UsersController.GET_LOGGED_IN_USERPROFILE_ROUTE, null),
+            onFailure: ErrorResult);
+    }
+
+    /// <summary>
+    /// Account login for super admins
+    /// </summary>
+    /// <param name="credential">Account credentials</param>
+    [Obsolete("Use LoginAsync() instead.")]
+    [HttpPost("admin/login")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> AdminLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
+    {
+        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.SuperAdmin, cancellationToken);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: error => _genericFailedLoginResponse);
+    }
+
+    /// <summary>
+    /// Account login for installers
+    /// </summary>
+    /// <param name="credential">Account credentials</param>
+    [Obsolete("Use LoginAsync() instead.")]
+    [HttpPost("installers/login")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> InstallerLoginAsync(LoginRequest credential, CancellationToken cancellationToken)
+    {
+        var result = await _authenticationService.LoginAsync(credential, ApplicationRole.Installer, cancellationToken);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: error => _genericFailedLoginResponse);
     }
 }
