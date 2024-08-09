@@ -22,6 +22,21 @@ public interface IAuthenticationService
     Task<Result<LoginResponse>> LoginAsync(LoginRequest credentials, ApplicationRole loginAsRole, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Log in user.
+    /// </summary>
+    /// <remarks>
+    /// Automatically searches the user's roles and logs in using the first role it sees.
+    /// </remarks>
+    /// <param name="credentials">
+    /// Account credentials.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token for cancelling operations.
+    /// </param>
+    /// <returns></returns>
+    Task<Result<LoginResponse>> LoginAsync(LoginRequest credentials, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Log out user.
     /// </summary>
     /// <param name="accessToken">
