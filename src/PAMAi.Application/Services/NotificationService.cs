@@ -37,6 +37,7 @@ internal sealed class NotificationService: INotificationService
         NotificationChannels channels,
         CancellationToken cancellationToken = default)
     {
+        CheckNotificationContents(contents, channels);
         _logger.LogDebug("Sending notifications to user {Id}. Channel(s): {Channels}",
             contents.RecipientUserId,
             channels);
@@ -152,6 +153,34 @@ internal sealed class NotificationService: INotificationService
     {
 
         return await _pushNotificationService.SendAsync(title, body, token);
+    }
+
+    private static void CheckNotificationContents(NotificationContents contents, NotificationChannels channelsInUse)
+    {
+        List<ArgumentException> exceptions = [];
+
+        if (channelsInUse.HasChannel(NotificationChannels.Sms) &&
+            contents.Sms is null)
+        {
+            exceptions.Add(new ArgumentException("SMS content cannot be null.", nameof(contents)));
+        }
+
+        if (channelsInUse.HasChannel(NotificationChannels.Push) &&
+            contents.Push is null)
+        {
+            exceptions.Add(new ArgumentException("Push notification content cannot be null.", nameof(contents)));
+        }
+
+        if (channelsInUse.HasChannel(NotificationChannels.Email) &&
+            contents.Email is null)
+        {
+            exceptions.Add(new ArgumentException("Email content cannot be null.", nameof(contents)));
+        }
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException(exceptions);
+        }
     }
 
     private async Task<UserNotificationDetails> GetUserNotificationDetailsAsync(string userId, CancellationToken cancellationToken = default)

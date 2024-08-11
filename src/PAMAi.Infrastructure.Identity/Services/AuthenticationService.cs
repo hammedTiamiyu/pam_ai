@@ -3,20 +3,25 @@ using System.Linq.Expressions;
 using System.Security.Claims;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PAMAi.Application;
+using PAMAi.Application.Dto.Account;
 using PAMAi.Application.Dto.Authentication;
 using PAMAi.Application.Extensions;
 using PAMAi.Application.Services.Interfaces;
+using PAMAi.Application.Services.Models;
 using PAMAi.Application.Storage;
 using PAMAi.Domain.Entities;
 using PAMAi.Domain.Enums;
 using PAMAi.Domain.Options;
 using PAMAi.Infrastructure.Identity.Errors;
 using PAMAi.Infrastructure.Identity.Models;
+using PAMAi.Infrastructure.Identity.Resources;
 using IAuthenticationService = PAMAi.Application.Services.Interfaces.IAuthenticationService;
 
 namespace PAMAi.Infrastructure.Identity.Services;
@@ -26,6 +31,7 @@ internal sealed class AuthenticationService: IAuthenticationService
 {
     private readonly UserManager<User> _userManager;
     private readonly ILogger<AuthenticationService> _logger;
+    private readonly INotificationService _notificationService;
     private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IdentityContext _identityContext;
@@ -34,6 +40,7 @@ internal sealed class AuthenticationService: IAuthenticationService
     public AuthenticationService(
         UserManager<User> userManager,
         ILogger<AuthenticationService> logger,
+        INotificationService notificationService,
         ITokenService tokenService,
         IUnitOfWork unitOfWork,
         IdentityContext identityContext,
@@ -41,12 +48,45 @@ internal sealed class AuthenticationService: IAuthenticationService
     {
         _userManager = userManager;
         _logger = logger;
+        _notificationService = notificationService;
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
         _identityContext = identityContext;
         _jwtOptions = jwtOptionsSnapshot.Value;
     }
 
+    public async Task<Result<ForgotPasswordResponse>> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        _logger.LogInformation("{Email} initiated a forgot-password request", request.Email);
+
+        // Generic response to send to the user regardless of the result.
+        // See: https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html.
+        ForgotPasswordResponse response = new()
+        {
+            Message = $"Email sent to {request.Email}.",
+        };
+
+        User? user = await _userManager.FindByEmailAsync(request.Email);
+        if (user is null)
+        {
+            _logger.LogError("Forgot password failed. No account matches {Email}", request.Email);
+            return Result<ForgotPasswordResponse>.Success(response);
+        }
+
+        string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var queryParameters = new Dictionary<string, string?>
+        {
+            { "email", request.Email },
+            { "token", token },
+        };
+        string callbackUrl = QueryHelpers.AddQueryString(request.CallbackUrl, queryParameters);
+        await SendResetPasswordLinkAsync(callbackUrl, user.Id);
+        _logger.LogInformation("Reset password link sent to {Email}", request.Email);
+
+        return Result<ForgotPasswordResponse>.Success(response);
+    }
+
+    [Obsolete]
     public async Task<Result<LoginResponse>> LoginAsync(LoginRequest credentials, CancellationToken cancellationToken = default)
     {
         // HACK: This was done at the persistent request of the FE devs for a quick demo. Should be removed.
@@ -247,6 +287,33 @@ internal sealed class AuthenticationService: IAuthenticationService
         return Result<RefreshTokenResponse>.Success(response);
     }
 
+    public async Task<Result> ResetPasswordAsync(ResetPasswordRequest request)
+    {
+        _logger.LogInformation("{Email} is attempting to reset their password", request.Email);
+        User? user = await _userManager.FindByEmailAsync(request.Email);
+        if (user is null)
+        {
+            _logger.LogError("Reset password failed. No account matches {Email}", request.Email);
+            return Result.Failure(AuthenticationErrors.ResetPasswordFailed with
+            {
+                Description = $"No account matches {request.Email}.",
+                StatusCode = StatusCodes.Status403Forbidden,
+            });
+        }
+
+        IdentityResult result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description);
+            _logger.LogError("Reset password failed. Identity errors: {@Errors}", errors);
+
+            return Result.Failure(AuthenticationErrors.ResetPasswordFailed);
+        }
+
+        _logger.LogInformation("Account {Email} has reset their password", request.Email);
+        return Result.Success();
+    }
+
     private static User MarkRefreshTokenAsRevoked(User user, string refreshToken)
     {
         string hashed = refreshToken.ToSha512Base64UrlEncoding();
@@ -372,5 +439,20 @@ internal sealed class AuthenticationService: IAuthenticationService
         _logger.LogInformation("'{Username}' logged in successfully", user.UserName);
 
         return Result<LoginResponse>.Success(response);
+    }
+
+    private async Task SendResetPasswordLinkAsync(string link, string recipientUserId)
+    {
+        var messageBody = string.Format(SmsMessages.ResetPassword, link);
+        NotificationContents contents = new()
+        {
+            RecipientUserId = recipientUserId,
+            Sms = new()
+            {
+                Message = messageBody
+            },
+        };
+
+        await _notificationService.SendAsync(contents, NotificationChannels.Sms);
     }
 }

@@ -1,4 +1,5 @@
-﻿using PAMAi.Application.Dto.Authentication;
+﻿using PAMAi.Application.Dto.Account;
+using PAMAi.Application.Dto.Authentication;
 using PAMAi.Domain.Enums;
 
 namespace PAMAi.Application.Services.Interfaces;
@@ -8,6 +9,15 @@ namespace PAMAi.Application.Services.Interfaces;
 /// </summary>
 public interface IAuthenticationService
 {
+    /// <summary>
+    /// Send a reset-password token to the user to change their password.
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns>
+    /// The result of the operation.
+    /// </returns>
+    Task<Result<ForgotPasswordResponse>> ForgotPasswordAsync(ForgotPasswordRequest request);
+
     /// <summary>
     /// Log in user.
     /// </summary>
@@ -34,6 +44,7 @@ public interface IAuthenticationService
     /// Token for cancelling operations.
     /// </param>
     /// <returns></returns>
+    [Obsolete("Use LoginAsync(LoginRequest, ApplicationRole, CancellationToken) instead.")]
     Task<Result<LoginResponse>> LoginAsync(LoginRequest credentials, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -58,4 +69,14 @@ public interface IAuthenticationService
     /// <returns></returns>
     Task<Result<RefreshTokenResponse>> RefreshTokenAsync(RefreshTokenRequest tokens, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Reset password.
+    /// </summary>
+    /// <param name="request">
+    /// New credentials.
+    /// </param>
+    /// <returns>
+    /// The result of the operation.
+    /// </returns>
+    Task<Result> ResetPasswordAsync(ResetPasswordRequest request);
 }
