@@ -26,6 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Resources\EmailMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EmailMessages.resx</DependentUpon>
+    </Compile>
     <Compile Update="Resources\SmsMessages.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -34,6 +39,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Resources\EmailMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EmailMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Resources\SmsMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SmsMessages.Designer.cs</LastGenOutput>

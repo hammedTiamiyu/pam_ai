@@ -56,21 +56,21 @@ internal sealed class NotificationService: INotificationService
         if (channels.HasChannel(NotificationChannels.Sms))
         {
             _logger.LogTrace("Sending notification through the SMS channel");
-            notificationTasks.Add(_smsService.SendMessageAsync(contents.Sms,
+            notificationTasks.Add(_smsService.SendMessageAsync(contents.Sms!,
                                                                recipientNotificationDetails.PhoneNumber,
                                                                cancellationToken));
         }
         if (channels.HasChannel(NotificationChannels.Email))
         {
             _logger.LogTrace("Sending notification through the email channel");
-            notificationTasks.Add(_emailService.SendAsync(contents.Email,
+            notificationTasks.Add(_emailService.SendAsync(contents.Email!,
                                                           recipientNotificationDetails.Email,
-                                                          cancellationToken));
+                                                          cancellationToken: cancellationToken));
         }
         if (channels.HasChannel(NotificationChannels.Push))
         {
             _logger.LogTrace("Sending notification through the push notification channel");
-            notificationTasks.Add(_pushNotificationService.SendAsync(contents.Push,
+            notificationTasks.Add(_pushNotificationService.SendAsync(contents.Push!,
                                                                      recipientNotificationDetails.DeviceToken,
                                                                      cancellationToken));
         }
@@ -189,6 +189,7 @@ internal sealed class NotificationService: INotificationService
 
         return new UserNotificationDetails
         {
+            Name = $"{profile.Data?.FirstName} {profile.Data?.LastName}".Trim(),
             Email = profile.Data?.Email ?? string.Empty,
             PhoneNumber = profile.Data?.PhoneNumber ?? string.Empty,
             // HACK: Device token hasn't been implemented yet.

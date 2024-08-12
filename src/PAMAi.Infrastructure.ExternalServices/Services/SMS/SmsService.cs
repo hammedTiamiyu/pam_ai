@@ -9,7 +9,6 @@ using PAMAi.Application.Services.Models;
 using PAMAi.Domain.Options;
 using PAMAi.Infrastructure.ExternalServices.Errors;
 using PAMAi.Infrastructure.ExternalServices.Models;
-using PAMAi.Infrastructure.ExternalServices.Validation;
 using RestSharp;
 
 namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
@@ -41,14 +40,14 @@ namespace PAMAi.Infrastructure.ExternalServices.Services.SMS
 
         public async Task<Result<SmsResponse>> SendSmsAsync(SmsRequest message, CancellationToken cancellationToken = default)
         {
-            if (!PhoneNumberValidator.AreValid(message.To))
-            {
-                _logger.LogError("Cannot send SMS. Phone number {Number} is invalid", message.To);
-                return Result<SmsResponse>.Failure(SMSErrors.PhoneNumberValidation with
-                {
-                    Description = "Numbers must start with '234' and be 13 digits long.",
-                });
-            }
+            //if (!PhoneNumberValidator.AreValid(message.To))
+            //{
+            //    _logger.LogError("Cannot send SMS. Phone number {Number} is invalid", message.To);
+            //    return Result<SmsResponse>.Failure(SMSErrors.PhoneNumberValidation with
+            //    {
+            //        Description = "Numbers must start with '234' and be 13 digits long.",
+            //    });
+            //}
 
             var client = new RestClient(_settings.BaseUrl);
             var request = new RestRequest("api/sms/send", Method.Post);

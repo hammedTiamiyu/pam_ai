@@ -26,6 +26,20 @@ public record NotificationContents
     /// </summary>
     public record EmailContent
     {
+        /// <summary>
+        /// Email subject.
+        /// </summary>
+        public required string Subject { get; set; }
+
+        /// <summary>
+        /// Email body.
+        /// </summary>
+        public required string Body { get; set; }
+
+        /// <summary>
+        /// Format of the email body.
+        /// </summary>
+        public required EmailBodyFormat Format { get; set; }
     }
 
     /// <summary>

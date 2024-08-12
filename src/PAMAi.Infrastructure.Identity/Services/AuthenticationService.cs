@@ -444,6 +444,8 @@ internal sealed class AuthenticationService: IAuthenticationService
     private async Task SendResetPasswordLinkAsync(string link, string recipientUserId)
     {
         var messageBody = string.Format(SmsMessages.ResetPassword, link);
+        var emailBody = string.Format(EmailMessages.ResetPassword, link);
+
         NotificationContents contents = new()
         {
             RecipientUserId = recipientUserId,
@@ -451,8 +453,14 @@ internal sealed class AuthenticationService: IAuthenticationService
             {
                 Message = messageBody
             },
+            Email = new()
+            {
+                Body = emailBody,
+                Format = EmailBodyFormat.Text,
+                Subject = "Reset Password",
+            }
         };
 
-        await _notificationService.SendAsync(contents, NotificationChannels.Sms);
+        await _notificationService.SendAsync(contents, NotificationChannels.Sms | NotificationChannels.Email);
     }
 }
