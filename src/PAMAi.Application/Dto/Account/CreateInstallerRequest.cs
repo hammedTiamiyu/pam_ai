@@ -52,7 +52,7 @@ internal class CreateInstallerRequestValidator: AbstractValidator<CreateInstalle
         RuleFor(c => c.LastName).NotEmpty();
         RuleFor(c => c.Username).NotEmpty();
         RuleFor(c => c.Email).EmailAddress();
-        RuleFor(c => c.Password).Equal(c => c.PasswordConfirmation);
+        RuleFor(c => c.PasswordConfirmation).Equal(c => c.Password).WithMessage($"{nameof(CreateInstallerRequest.PasswordConfirmation)} must match {nameof(CreateInstallerRequest.Password)}.");
         RuleFor(c => c.AcceptTermsOfService).Equal(true).WithMessage("Installer must accept the Terms of Service to create an account on this platform.");
     }
 }

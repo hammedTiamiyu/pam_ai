@@ -96,6 +96,38 @@ public sealed class AccountsController: BaseController
     }
 
     /// <summary>
+    /// Send a link to reset account password
+    /// </summary>
+    /// <param name="request"></param>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(ForgotPasswordResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPasswordAsync(ForgotPasswordRequest request)
+    {
+        var result = await _authenticationService.ForgotPasswordAsync(request);
+
+        return result.Match(
+            onSuccess: Ok,
+            onFailure: ErrorResult);
+    }
+
+    /// <summary>
+    /// Reset account password
+    /// </summary>
+    /// <param name="credential">
+    /// New credential
+    /// </param>
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> ResetPasswordAsync(ResetPasswordRequest credential)
+    {
+        var result = await _authenticationService.ResetPasswordAsync(credential);
+
+        return result.Match(
+            onSuccess: NoContent,
+            onFailure: ErrorResult);
+    }
+
+    /// <summary>
     /// Create installer account
     /// </summary>
     /// <param name="installer">

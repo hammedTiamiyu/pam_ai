@@ -37,6 +37,7 @@ internal sealed class NotificationService: INotificationService
         NotificationChannels channels,
         CancellationToken cancellationToken = default)
     {
+        CheckNotificationContents(contents, channels);
         _logger.LogDebug("Sending notifications to user {Id}. Channel(s): {Channels}",
             contents.RecipientUserId,
             channels);
@@ -55,21 +56,21 @@ internal sealed class NotificationService: INotificationService
         if (channels.HasChannel(NotificationChannels.Sms))
         {
             _logger.LogTrace("Sending notification through the SMS channel");
-            notificationTasks.Add(_smsService.SendMessageAsync(contents.Sms,
+            notificationTasks.Add(_smsService.SendMessageAsync(contents.Sms!,
                                                                recipientNotificationDetails.PhoneNumber,
                                                                cancellationToken));
         }
         if (channels.HasChannel(NotificationChannels.Email))
         {
             _logger.LogTrace("Sending notification through the email channel");
-            notificationTasks.Add(_emailService.SendAsync(contents.Email,
+            notificationTasks.Add(_emailService.SendAsync(contents.Email!,
                                                           recipientNotificationDetails.Email,
-                                                          cancellationToken));
+                                                          cancellationToken: cancellationToken));
         }
         if (channels.HasChannel(NotificationChannels.Push))
         {
             _logger.LogTrace("Sending notification through the push notification channel");
-            notificationTasks.Add(_pushNotificationService.SendAsync(contents.Push,
+            notificationTasks.Add(_pushNotificationService.SendAsync(contents.Push!,
                                                                      recipientNotificationDetails.DeviceToken,
                                                                      cancellationToken));
         }
@@ -154,12 +155,41 @@ internal sealed class NotificationService: INotificationService
         return await _pushNotificationService.SendAsync(title, body, token);
     }
 
+    private static void CheckNotificationContents(NotificationContents contents, NotificationChannels channelsInUse)
+    {
+        List<ArgumentException> exceptions = [];
+
+        if (channelsInUse.HasChannel(NotificationChannels.Sms) &&
+            contents.Sms is null)
+        {
+            exceptions.Add(new ArgumentException("SMS content cannot be null.", nameof(contents)));
+        }
+
+        if (channelsInUse.HasChannel(NotificationChannels.Push) &&
+            contents.Push is null)
+        {
+            exceptions.Add(new ArgumentException("Push notification content cannot be null.", nameof(contents)));
+        }
+
+        if (channelsInUse.HasChannel(NotificationChannels.Email) &&
+            contents.Email is null)
+        {
+            exceptions.Add(new ArgumentException("Email content cannot be null.", nameof(contents)));
+        }
+
+        if (exceptions.Count > 0)
+        {
+            throw new AggregateException(exceptions);
+        }
+    }
+
     private async Task<UserNotificationDetails> GetUserNotificationDetailsAsync(string userId, CancellationToken cancellationToken = default)
     {
         var profile = await _accountService.GetProfileAsync(userId, cancellationToken);
 
         return new UserNotificationDetails
         {
+            Name = $"{profile.Data?.FirstName} {profile.Data?.LastName}".Trim(),
             Email = profile.Data?.Email ?? string.Empty,
             PhoneNumber = profile.Data?.PhoneNumber ?? string.Empty,
             // HACK: Device token hasn't been implemented yet.

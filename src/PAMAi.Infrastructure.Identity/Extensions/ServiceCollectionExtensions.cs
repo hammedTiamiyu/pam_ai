@@ -100,6 +100,8 @@ public static class ServiceCollectionExtensions
             options.User.RequireUniqueEmail = true;
         }).AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
 
+        services.Configure<DataProtectionTokenProviderOptions>(config => config.TokenLifespan = TimeSpan.FromMinutes(2));
+
         return services;
     }
 

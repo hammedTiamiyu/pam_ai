@@ -7,6 +7,11 @@
 internal class UserNotificationDetails
 {
     /// <summary>
+    /// Recipeint's full name.
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
     /// Recipient's email address.
     /// </summary>
     internal string Email { get; set; } = string.Empty;

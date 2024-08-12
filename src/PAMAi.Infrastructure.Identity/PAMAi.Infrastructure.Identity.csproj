@@ -17,12 +17,36 @@
   </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PAMAi.Tests.Unit"/>
+        <InternalsVisibleTo Include="PAMAi.Tests.Unit" />
     </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PAMAi.Application\PAMAi.Application.csproj" />
     <ProjectReference Include="..\PAMAi.Domain\PAMAi.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\EmailMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EmailMessages.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\SmsMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SmsMessages.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\EmailMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>EmailMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SmsMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SmsMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
     private static IServiceCollection ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<TermiiOptions>(configuration.GetSection("TermiiSettings"));
+        services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.ConfigurationKey));
 
         return services;
     }

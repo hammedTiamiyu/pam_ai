@@ -8,13 +8,13 @@ namespace PAMAi.Application.Services.Models;
 public record NotificationContents
 {
     /// <inheritdoc cref="EmailContent"/>
-    public EmailContent Email { get; set; } = EmailContent.Empty;
+    public EmailContent? Email { get; set; }
 
     /// <inheritdoc cref="PushContent"/>
-    public PushContent Push { get; set; } = PushContent.Empty;
+    public PushContent? Push { get; set; }
 
     /// <inheritdoc cref="SmsContent"/>
-    public SmsContent Sms { get; set; } = SmsContent.Empty;
+    public SmsContent? Sms { get; set; }
 
     /// <summary>
     /// User ID of the recipient.
@@ -26,7 +26,20 @@ public record NotificationContents
     /// </summary>
     public record EmailContent
     {
-        internal static EmailContent Empty = new();
+        /// <summary>
+        /// Email subject.
+        /// </summary>
+        public required string Subject { get; set; }
+
+        /// <summary>
+        /// Email body.
+        /// </summary>
+        public required string Body { get; set; }
+
+        /// <summary>
+        /// Format of the email body.
+        /// </summary>
+        public required EmailBodyFormat Format { get; set; }
     }
 
     /// <summary>
@@ -63,12 +76,6 @@ public record NotificationContents
         /// Notification body.
         /// </summary>
         public required string Body { get; set; }
-
-        /// <summary>
-        /// Represents an empty push notification.
-        /// </summary>
-
-        internal static PushContent Empty = new(string.Empty, string.Empty);
     }
 
     /// <summary>
@@ -96,11 +103,5 @@ public record NotificationContents
         /// Message body
         /// </summary>
         public required string Message { get; set; }
-
-        /// <summary>
-        /// Represents an empty SMS.
-        /// </summary>
-
-        internal static SmsContent Empty = new(string.Empty);
     }
 }
